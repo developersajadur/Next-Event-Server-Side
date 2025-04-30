@@ -22,7 +22,7 @@ model User {
   updatedAt      DateTime      @updatedAt
   events         Event[]       @relation("UserEvents")
   payments       Payment[]
-  participations Participant[]
+  participants Participant[]
   invites        Invite[]      @relation("UserInvites")
   reviews        Review[]
 

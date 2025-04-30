@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import PDFDocument from 'pdfkit';
 import { TPayment } from '../modules/payment/payment.interface';
 
