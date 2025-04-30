@@ -13,6 +13,10 @@ model User {
   name         String
   email        String        @unique
   password     String
+  address      String?
+  bio          String?
+  gender       String?
+  occupation   String?
   phoneNumber  String        @unique
   profileImage String?
   role         Role          @default(USER)

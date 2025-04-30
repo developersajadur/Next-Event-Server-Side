@@ -5,6 +5,8 @@ import sendResponse from '../../helpers/sendResponse';
 import { authService } from './auth.service';
 import config from '../../config';
 
+
+
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.loginUser(req.body);
   const { refreshToken } = result;

@@ -1,0 +1,19 @@
+import { NextFunction, Request, Response, Router } from "express"
+import { fileUploads } from "../../helpers/fileUploader"
+import Auth from "../../middlewares/Auth"
+import { ProfileController } from "./profile.controller"
+import { profileValidation } from "./profile.validation"
+
+const router = Router()
+
+router.get('/:id', Auth('ADMIN','USER'),ProfileController.getSingleProfile)
+
+router.patch('/:id',Auth('ADMIN','USER') ,fileUploads.upload.single('file'), (req: Request, res: Response, next: NextFunction) => {
+    const parsedData = JSON.parse(req.body.data)
+    req.body = profileValidation.parse(parsedData);
+
+    return ProfileController.updateUserProfile(req, res, next);
+})
+
+
+export const profileRoutes = router
