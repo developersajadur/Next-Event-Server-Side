@@ -22,13 +22,13 @@ const loginUser = async (data: { email: string; password: string }) => {
   const accessToken = jwtHelpers.createToken(
     { email: result.email, role: result.role },
     config.jwt.ACCESS_TOKEN_SECRET as string,
-    config.jwt.ACCESS_TOKEN_EXPIRES_IN as string,
+    config.jwt.ACCESS_TOKEN_EXPIRES_IN as string
   );
 
   const refreshToken = jwtHelpers.createToken(
     { email: result.email, role: result.role },
     config.jwt.REFRESH_TOKEN_SECRET as string,
-    config.jwt.REFRESH_TOKEN_EXPIRES_IN as string,
+    config.jwt.REFRESH_TOKEN_EXPIRES_IN as string
   );
 
   return {
