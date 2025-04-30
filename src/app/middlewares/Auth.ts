@@ -1,46 +1,42 @@
 import { NextFunction, Request, Response } from 'express';
-import status from 'http-status';
-import AppError from '../errors/AppError';
-import catchAsync from '../helpers/catchAsync';
-import { jwtHelpers } from '../helpers/jwtHelpers';
-import prisma from '../shared/prisma';
-import { Role } from '@prisma/client';
+import httpStatus from 'http-status';
+import { Secret } from 'jsonwebtoken';
 import config from '../config';
+import AppError from '../errors/AppError';
+import { jwtHelpers } from '../helpers/jwtHelpers';
 
-const Auth = (...requiredRoles: Role[]) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // const token = req.headers.authorization;
-    const token = req.headers.authorization?.split(' ')[1]; 
+const auth = (...roles: string[]) => {
+  // console.log(roles)
 
+  return async (
+    req: Request & { user?: any },
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+  const token = req.headers.authorization?.split(' ')[1]; 
 
-    if (!token) {
-      throw new AppError(status.UNAUTHORIZED, 'Authorization token missing!');
+      //   console.log(token);
+      if (!token) {
+        throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
+      }
+
+      const verifiedUser = jwtHelpers.verifyToken(
+        token as string,
+        config.jwt.ACCESS_TOKEN_SECRET as Secret,
+      );
+      //   console.log(verifiedUser)
+
+      req.user = verifiedUser;
+
+      if (roles.length && !roles.includes(verifiedUser.role)) {
+        throw new AppError(httpStatus.FORBIDDEN, 'Forbidden!');
+      }
+      next();
+    } catch (error) {
+      next(error);
     }
-
-    const decoded = jwtHelpers.verifyToken(token, config.jwt.ACCESS_TOKEN_SECRET as string);
-    (req as any).user = decoded;
-    const { email } = decoded;
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-    if (!user) {
-      throw new AppError(status.UNAUTHORIZED, 'User not found!');
-    }
-
-    if (user.isBlocked) {
-      throw new AppError(status.FORBIDDEN, 'User is blocked!');
-    }
-
-    if (user.isDeleted) {
-      throw new AppError(status.FORBIDDEN, 'User is deleted!');
-    }
-
-    if (requiredRoles.length && !requiredRoles.includes(user.role)) {
-      throw new AppError(status.UNAUTHORIZED, 'You are not authorized!');
-    }
-    next();
-  });
+  };
 };
 
-export default Auth;
+export default auth;
