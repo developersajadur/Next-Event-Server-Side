@@ -1,10 +1,10 @@
-import { ErrorRequestHandler } from 'express';
-import { TErrorSources } from '../globalTypes/error.type';
-import config from '../config';
+import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
+import config from '../config';
 import handleZodError from '../errors/handleZodError';
+import { TErrorSources } from '../globalTypes/error.type';
 
-const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
+const globalErrorHandler: ErrorRequestHandler = (err, req: Request, res: Response, next: NextFunction) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
   let errorSources: TErrorSources = [
