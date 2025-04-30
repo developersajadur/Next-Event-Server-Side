@@ -20,13 +20,13 @@ const loginUser = async (data: { email: string; password: string }) => {
   }
 
   const accessToken = jwtHelpers.createToken(
-    { email: result.email, role: result.role },
+    { email: result.email, role: result.role, id:result.id },
     config.jwt.ACCESS_TOKEN_SECRET as string,
     config.jwt.ACCESS_TOKEN_EXPIRES_IN as string,
   );
 
   const refreshToken = jwtHelpers.createToken(
-    { email: result.email, role: result.role },
+    { email: result.email, role: result.role, id:result.id },
     config.jwt.REFRESH_TOKEN_SECRET as string,
     config.jwt.REFRESH_TOKEN_EXPIRES_IN as string,
   );
@@ -45,10 +45,11 @@ const refreshToken = async (token: string) => {
       token,
       config.jwt.REFRESH_TOKEN_SECRET as string,
     );
+    console.log("decoded data", decodedData)
   } catch (error) {
     throw new Error('You are not authorized');
   }
-
+ 
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: decodedData.email,
