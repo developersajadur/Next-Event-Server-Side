@@ -38,7 +38,19 @@ const getAllUsersFromDB = async () => {
   });
   return result;
 };
+
+// delete user
+const deleteUserFromDB = async (id: string) => {
+  // console.log(id)
+  const result = await prisma.user.delete({
+    where: {
+      id,
+    },
+  });
+  return result;
+};
 export const userService = {
   createUserIntoDB,
   getAllUsersFromDB,
+  deleteUserFromDB,
 };

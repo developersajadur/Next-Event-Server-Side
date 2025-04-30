@@ -15,6 +15,8 @@ const createUserIntoDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+// getAllUsersFromDB
 const getAllUsersFromDB = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.getAllUsersFromDB();
 
@@ -25,9 +27,22 @@ const getAllUsersFromDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-// getAllUsersFromDB
+
+// delete user
+const deleteUserFromDB = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const result = await userService.deleteUserFromDB(id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'user deleted successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   createUserIntoDB,
-  getAllUsersFromDB
-
+  getAllUsersFromDB,
+  deleteUserFromDB,
 };

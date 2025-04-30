@@ -3,6 +3,7 @@ import { fileUploads } from '../../helpers/fileUploader';
 import { userController } from './user.controller';
 import { createUserZodSchema } from './user.validation';
 const router = express.Router();
+
 router.post(
   '/',
   fileUploads.upload.single('file'),
@@ -12,6 +13,9 @@ router.post(
   },
 );
 
-// get users
+// get all users from database
 router.get('/', userController.getAllUsersFromDB);
+
+// delete user
+router.delete('/:id', userController.deleteUserFromDB);
 export const userRouter = router;
