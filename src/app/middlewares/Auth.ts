@@ -9,19 +9,21 @@ import config from '../config';
 
 const Auth = (...requiredRoles: Role[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
-    
+    // const token = req.headers.authorization;
+    const token = req.headers.authorization?.split(' ')[1]; 
+
+
     if (!token) {
       throw new AppError(status.UNAUTHORIZED, 'Authorization token missing!');
     }
 
     const decoded = jwtHelpers.verifyToken(token, config.jwt.ACCESS_TOKEN_SECRET as string);
+    (req as any).user = decoded;
     const { email } = decoded;
 
     const user = await prisma.user.findUnique({
       where: { email },
     });
-
     if (!user) {
       throw new AppError(status.UNAUTHORIZED, 'User not found!');
     }
