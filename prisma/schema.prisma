@@ -43,7 +43,7 @@ model Event {
   bannerImage  String?
   type         EventType
   isPaid       Boolean
-  fee          Decimal?
+  fee          Decimal
   isDeleted    Boolean       @default(false)
   organizer    User          @relation("UserEvents", fields: [organizerId], references: [id])
   organizerId  String
