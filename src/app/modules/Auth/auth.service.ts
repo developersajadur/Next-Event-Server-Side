@@ -20,7 +20,7 @@ const loginUser = async (data: { email: string; password: string }) => {
   );
 
   if (!isCorrectPassword) {
-    throw new AppError(403,'Password did not match');
+    throw new AppError(403, 'Password did not match');
   }
 
   const accessToken = jwtHelpers.createToken(
@@ -71,7 +71,42 @@ const refreshToken = async (token: string) => {
   };
 };
 
+// password change
+const passwordChange = async (user: any, payload: any) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+  });
+  if (userData.isBlocked) {
+    throw new AppError(403, 'User is blocked');
+  }
+
+  const isCorrectPassword: boolean = await bcrypt.compare(
+    payload.oldPassword,
+    userData.password,
+  );
+
+  if (!isCorrectPassword) {
+    throw new AppError(401, 'Password Incorrect');
+  }
+
+  const hashPassword = await bcrypt.hash(payload.newPassword, 12);
+  await prisma.user.update({
+    where: {
+      email: userData.email,
+    },
+    data: {
+      password: hashPassword,
+    },
+  });
+  return {
+    message: 'Password changed successfully',
+  };
+};
+
 export const authService = {
   loginUser,
   refreshToken,
+  passwordChange,
 };
