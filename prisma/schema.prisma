@@ -9,22 +9,22 @@ datasource db {
 }
 
 model User {
-  id             String        @id @default(uuid())
-  name           String
-  email          String        @unique
-  password       String
-  phoneNumber    String        @unique
-  profileImage   String?
-  role           Role          @default(USER)
-  isDeleted      Boolean       @default(false)
-  isBlocked      Boolean       @default(false)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  events         Event[]       @relation("UserEvents")
-  payments       Payment[]
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String
+  phoneNumber  String        @unique
+  profileImage String?
+  role         Role          @default(USER)
+  isDeleted    Boolean       @default(false)
+  isBlocked    Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  events       Event[]       @relation("UserEvents")
+  payments     Payment[]
   participants Participant[]
-  invites        Invite[]      @relation("UserInvites")
-  reviews        Review[]
+  invites      Invite[]      @relation("UserInvites")
+  reviews      Review[]
 
   @@map("users")
 }
@@ -62,7 +62,7 @@ model Payment {
   amount          Decimal
   method          PaymentMethod
   status          PaymentStatus
-  transactionId   String?  @unique
+  transactionId   String?       @unique
   gatewayResponse Json?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

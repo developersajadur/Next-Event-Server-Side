@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import PDFDocument from 'pdfkit';
-import { TPayment } from '../modules/payment/payment.interface';
+import { Payment, User } from '@prisma/client';
 
 /**
  * Generates a PDF invoice for a payment.
  * @param {TPayment} payment - The payment object.
  * @returns {Promise<Buffer>} - The generated PDF as a Buffer.
  */
-export const generateOrderInvoicePDF = async (payment: TPayment): Promise<Buffer> => {
+export const generateOrderInvoicePDF = async (payment: Payment & { user: User; event: Event } | any): Promise<Buffer> => {
   return new Promise<Buffer>((resolve, reject) => {
     try {
       const doc = new PDFDocument({ margin: 50 });

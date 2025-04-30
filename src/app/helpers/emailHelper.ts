@@ -34,7 +34,7 @@ const sendEmail = async (
     });
 
     const mailOptions: nodemailer.SendMailOptions = {
-      from: '"NextMart" <support@nextmart.com>',
+      from: '"Next-Event" <support@nextevent.com>',
       to: email,
       subject,
       html,
