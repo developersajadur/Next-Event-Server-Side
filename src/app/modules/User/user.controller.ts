@@ -15,7 +15,19 @@ const createUserIntoDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getAllUsersFromDB = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.getAllUsersFromDB();
 
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'users fetched successfully',
+    data: result,
+  });
+});
+// getAllUsersFromDB
 export const userController = {
   createUserIntoDB,
+  getAllUsersFromDB
+
 };

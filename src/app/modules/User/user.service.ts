@@ -1,11 +1,13 @@
 import bcrypt from 'bcrypt';
+import { Request } from 'express';
 import { fileUploads } from '../../helpers/fileUploader';
 import { IFile } from '../../interfaces/file';
 import prisma from '../../shared/prisma';
+import { publicUserSelectFields } from './user.interface';
 
 // createUserIntoDB
-const createUserIntoDB = async (req: any) => {
-  console.log(req.body, req.file);
+const createUserIntoDB = async (req: Request) => {
+  console.log(req.body);
   if (req.file) {
     const file = req.file as IFile;
     const cloudinaryRes = await fileUploads.uploadToCloudinary(file);
@@ -19,7 +21,7 @@ const createUserIntoDB = async (req: any) => {
     email: req.body.email,
     password: hashPassword,
     phoneNumber: req.body.phoneNumber,
-    profileImage: req.body.profileImage, // from cloudinary or empty string
+    profileImage: req.body.profileImage,
   };
 
   const result = await prisma.user.create({
@@ -29,6 +31,14 @@ const createUserIntoDB = async (req: any) => {
   return result;
 };
 
+// get User
+const getAllUsersFromDB = async () => {
+  const result = await prisma.user.findMany({
+    select: publicUserSelectFields,
+  });
+  return result;
+};
 export const userService = {
   createUserIntoDB,
+  getAllUsersFromDB,
 };
