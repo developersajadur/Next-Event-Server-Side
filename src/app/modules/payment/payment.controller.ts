@@ -7,17 +7,21 @@ import { paymentService } from "./payment.service";
 
 const createOrder = catchAsync(async (req, res) => {
     const decoded = tokenDecoder(req);
-    const { email } = decoded;
+    const { id } = decoded;
+    const payload = {userId: id, ...req?.body}
 
-    const result = await paymentService.createPayment(
-      req.body,
-    );
+    const result = await paymentService.createPayment(payload);
   
     sendResponse(res, {
       statusCode: status.CREATED,
       success: true,
-      message: "Order created succesfully",
+      message: "Payment created succesfully",
       data: result,
     });
   });
+
+
+  export const paymentController = {
+    createOrder,
+  }
   

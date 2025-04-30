@@ -16,14 +16,14 @@ export  type TJwtPayload = {
 }
 
 export const tokenDecoder = (req: Request) => {
-  const token = req?.headers?.authorization;
+  const token = req.cookies?.refreshToken;
   // console.log(token);
   if (!token) {
     throw new AppError(status.UNAUTHORIZED, 'You Are Not Authorized');
   }
   const decoded = jwtHelpers.verifyToken(
     token as string,
-    config.jwt.ACCESS_TOKEN_SECRET as string,
+    config.jwt.REFRESH_TOKEN_SECRET as string,
   );
   return decoded;
 };

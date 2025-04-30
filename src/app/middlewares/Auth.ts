@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from 'express';
 import status from 'http-status';
 import AppError from '../errors/AppError';
 import catchAsync from '../helpers/catchAsync';
@@ -8,17 +7,29 @@ import { Role } from '@prisma/client';
 import config from '../config';
 
 const Auth = (...requiredRoles: Role[]) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+  return catchAsync(async (req, res, next) => {
+    const token = req.cookies?.refreshToken;
+
+    // console.log('Received Cookies:', req.cookies.refreshToken);
+    // console.log('Extracted Token:', token);
 
     if (!token) {
       throw new AppError(status.UNAUTHORIZED, 'Authorization token missing!');
     }
 
-    const decoded = jwtHelpers.verifyToken(
-      token,
-      config.jwt.ACCESS_TOKEN_SECRET as string,
-    );
+    let decoded;
+    try {
+      decoded = jwtHelpers.verifyToken(
+        token,
+        config.jwt.REFRESH_TOKEN_SECRET as string,
+      );
+    } catch (err) {
+      // console.error('Token verification failed:', err);
+      throw new AppError(status.UNAUTHORIZED, 'Invalid or expired token');
+    }
+
+    // console.log('Decoded Token:', decoded);
+
     const { email, exp } = decoded;
 
     if (exp && Date.now() >= exp * 1000) {
@@ -44,6 +55,7 @@ const Auth = (...requiredRoles: Role[]) => {
     if (requiredRoles.length && !requiredRoles.includes(user.role)) {
       throw new AppError(status.UNAUTHORIZED, 'You are not authorized!');
     }
+
     next();
   });
 };
