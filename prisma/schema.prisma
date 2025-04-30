@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -10,13 +9,147 @@ datasource db {
 }
 
 model User {
-  userId    String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  phone     String
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String        @id @default(uuid())
+  name           String
+  email          String        @unique
+  password       String
+  phoneNumber    String        @unique
+  profileImage   String?
+  role           Role          @default(USER)
+  isDeleted      Boolean       @default(false)
+  isBlocked      Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  events         Event[]       @relation("UserEvents")
+  payments       Payment[]
+  participants Participant[]
+  invites        Invite[]      @relation("UserInvites")
+  reviews        Review[]
 
   @@map("users")
+}
+
+model Event {
+  id           String        @id @default(uuid())
+  slug         String        @unique
+  title        String
+  description  String
+  dateTime     DateTime
+  venue        String
+  bannerImage  String?
+  type         EventType
+  isPaid       Boolean
+  fee          Decimal?
+  isDeleted    Boolean       @default(false)
+  organizer    User          @relation("UserEvents", fields: [organizerId], references: [id])
+  organizerId  String
+  participants Participant[]
+  invites      Invite[]
+  reviews      Review[]
+  payments     Payment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("events")
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  eventId         String
+  event           Event         @relation(fields: [eventId], references: [id])
+  amount          Decimal
+  method          PaymentMethod
+  status          PaymentStatus
+  transactionId   String?  @unique
+  gatewayResponse Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, eventId])
+  @@map("payments")
+}
+
+model Participant {
+  id        String              @id @default(uuid())
+  userId    String
+  eventId   String
+  status    ParticipationStatus @default(PENDING)
+  hasPaid   Boolean             @default(false)
+  isDeleted Boolean             @default(false)
+  joinedAt  DateTime?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@map("participants")
+}
+
+model Invite {
+  id        String           @id @default(uuid())
+  eventId   String
+  inviteeId String
+  hasPaid   Boolean          @default(false)
+  status    InvitationStatus @default(PENDING)
+  isDeleted Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  event   Event @relation(fields: [eventId], references: [id])
+  invitee User  @relation("UserInvites", fields: [inviteeId], references: [id])
+
+  @@map("invites")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  eventId    String
+  reviewerId String
+  rating     Int
+  comment    String
+  isDeleted  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  event    Event @relation(fields: [eventId], references: [id])
+  reviewer User  @relation(fields: [reviewerId], references: [id])
+
+  @@map("reviews")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum PaymentMethod {
+  COD
+  Online
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+}
+
+enum EventType {
+  PUBLIC
+  PRIVATE
+}
+
+enum ParticipationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  BANNED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }
