@@ -8,7 +8,7 @@ const router = Router();
 
 
 
-router.post("/make-payment", paymentController.createOrder)
+router.post("/make-payment", Auth(Role.USER, Role.ADMIN), paymentController.createOrder)
 
 
 

@@ -1,10 +1,12 @@
 import { Prisma } from '@prisma/client';
 import prisma from '../../shared/prisma';
+import httpStatus from 'http-status';
 import { TPayment } from './payment.interface';
 import { generateTransactionId } from './payment.utils';
 import { sslCommerzService } from '../sslcommerz/sslcommerz.service';
 import { generateOrderInvoicePDF } from '../../helpers/generatePaymentInvoicePDF';
 import { EmailHelper } from '../../helpers/emailHelper';
+import AppError from '../../errors/AppError';
 
  const createPayment = async (payload: TPayment) => {
   const {
@@ -15,6 +17,18 @@ import { EmailHelper } from '../../helpers/emailHelper';
     eventId,
     gatewayResponse = null,
   } = payload;
+
+  const isEventExist = await prisma.event.findUnique({
+    where: {
+      id: eventId,
+    }
+  })
+
+  if (!isEventExist) {
+    throw new AppError(httpStatus.NOT_FOUND ,'Event not found!');
+  }else if (isEventExist.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Event is deleted!');
+  }
 
   const transactionId = generateTransactionId();
 

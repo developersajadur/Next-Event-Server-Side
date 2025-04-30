@@ -1,14 +1,14 @@
 import status from "http-status";
 import catchAsync from "../../helpers/catchAsync";
 import sendResponse from "../../helpers/sendResponse";
-import { tokenDecoder } from "../../helpers/tokenDecoder";
 import { paymentService } from "./payment.service";
+import { Request } from "express";
 
 
-const createOrder = catchAsync(async (req, res) => {
-    const decoded = tokenDecoder(req);
-    const { id } = decoded;
-    const payload = {userId: id, ...req?.body}
+const createOrder = catchAsync(async (req: Request & {user?: any}, res) => {
+  const user = req.user;
+  // console.log(user);
+    const payload = {userId: user.id , ...req?.body}
 
     const result = await paymentService.createPayment(payload);
   

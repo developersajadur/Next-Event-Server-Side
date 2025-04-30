@@ -61,7 +61,7 @@ model Payment {
   event           Event         @relation(fields: [eventId], references: [id])
   amount          Decimal
   method          PaymentMethod
-  status          PaymentStatus
+  status          PaymentStatus @default(Pending)
   transactionId   String?       @unique
   gatewayResponse Json?
   createdAt       DateTime      @default(now())
