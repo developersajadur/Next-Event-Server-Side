@@ -118,13 +118,74 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 });
 
 exports.Prisma.UserScalarFieldEnum = {
-  userId: 'userId',
+  id: 'id',
   name: 'name',
   email: 'email',
-  phone: 'phone',
+  password: 'password',
+  phoneNumber: 'phoneNumber',
+  profileImage: 'profileImage',
+  role: 'role',
   isDeleted: 'isDeleted',
+  isBlocked: 'isBlocked',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updateAt: 'updateAt'
+};
+
+exports.Prisma.EventScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  dateTime: 'dateTime',
+  venue: 'venue',
+  bannerImage: 'bannerImage',
+  type: 'type',
+  isPaid: 'isPaid',
+  fee: 'fee',
+  organizerId: 'organizerId',
+  createdAt: 'createdAt',
+  updateAt: 'updateAt'
+};
+
+exports.Prisma.ParticipantScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  eventId: 'eventId',
+  status: 'status',
+  hasPaid: 'hasPaid',
+  joinedAt: 'joinedAt',
+  createdAt: 'createdAt',
+  updateAt: 'updateAt'
+};
+
+exports.Prisma.InviteScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  inviteeId: 'inviteeId',
+  hasPaid: 'hasPaid',
+  status: 'status',
+  createdAt: 'createdAt',
+  updateAt: 'updateAt'
+};
+
+exports.Prisma.ReviewScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  reviewerId: 'reviewerId',
+  rating: 'rating',
+  comment: 'comment',
+  createdAt: 'createdAt',
+  updateAt: 'updateAt'
+};
+
+exports.Prisma.PaymentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  eventId: 'eventId',
+  amount: 'amount',
+  transactionId: 'transactionId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updateAt: 'updateAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -137,9 +198,49 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+exports.Role = exports.$Enums.Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
+};
+
+exports.EventType = exports.$Enums.EventType = {
+  PUBLIC_FREE: 'PUBLIC_FREE',
+  PUBLIC_PAID: 'PUBLIC_PAID',
+  PRIVATE_FREE: 'PRIVATE_FREE',
+  PRIVATE_PAID: 'PRIVATE_PAID'
+};
+
+exports.ParticipationStatus = exports.$Enums.ParticipationStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  BANNED: 'BANNED'
+};
+
+exports.InvitationStatus = exports.$Enums.InvitationStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  PENDING: 'PENDING',
+  CANCELLED: 'CANCELLED'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Event: 'Event',
+  Participant: 'Participant',
+  Invite: 'Invite',
+  Review: 'Review',
+  Payment: 'Payment'
 };
 
 /**

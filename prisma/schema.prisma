@@ -10,13 +10,124 @@ datasource db {
 }
 
 model User {
-  userId    String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  phone     String
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+id            String     @id @default (uuid())
+name          String
+email         String     @unique
+password      String
 
-  @@map("users")
+phoneNumber String  @unique
+profileImage  String?
+role          Role       @default(USER)
+events        Event[]    @relation("UserEvents")
+participations Participant[]
+
+isDeleted Boolean @default(false) 
+
+isBlocked Boolean @default(false) 
+invites       Invite[]   @relation("UserInvites")
+reviews       Review[]
+createdAt     DateTime   @default(now())
+updateAt      DateTime    @updatedAt
 }
+
+model Event {
+id            String     @id @default (uuid())
+title         String
+description   String
+dateTime      DateTime
+venue         String
+bannerImage   String?     // ✅ Added
+type          EventType
+isPaid        Boolean
+fee           Float?
+organizer     User       @relation("UserEvents", fields: [organizerId], references: [id])
+organizerId   String
+participants  Participant[]
+invites       Invite[]
+reviews       Review[]
+createdAt     DateTime   @default(now())
+updateAt      DateTime    @updatedAt
+}
+
+model Participant {
+id            String     @id @default (uuid())
+user          User       @relation(fields: [userId], references: [id])
+userId        String
+event         Event      @relation(fields: [eventId], references: [id])
+eventId       String
+status        ParticipationStatus @default(PENDING) 
+hasPaid       Boolean    @default(false)
+joinedAt      DateTime?  // Null until approved
+
+createdAt     DateTime   @default(now())
+updateAt      DateTime    @updatedAt
+}
+
+model Invite {
+id            String     @id @default (uuid())
+event         Event      @relation(fields: [eventId], references: [id])
+eventId       String
+invitee       User       @relation("UserInvites", fields: [inviteeId], references: [id])
+inviteeId     String
+hasPaid       Boolean    @default(false)
+status        InvitationStatus @default(PENDING) // PENDING | ACCEPTED | DECLINED
+createdAt     DateTime   @default(now())
+updateAt      DateTime    @updatedAt
+}
+
+model Review {
+id            String     @id @default (uuid())
+event         Event      @relation(fields: [eventId], references: [id])
+eventId       String
+reviewer      User       @relation(fields: [reviewerId], references: [id])
+reviewerId    String
+rating        Int        
+comment       String
+createdAt     DateTime   @default(now())
+
+updateAt      DateTime    @updatedAt
+}
+
+model Payment {
+id            String     @id @default (uuid())
+userId        String
+eventId       String
+amount        Float
+transactionId String
+status        PaymentStatus
+createdAt     DateTime   @default(now())
+updateAt      DateTime    @updatedAt
+}
+
+enum Role {
+USER
+ADMIN
+}
+
+enum EventType {
+PUBLIC_FREE
+PUBLIC_PAID
+PRIVATE_FREE
+PRIVATE_PAID
+}
+
+enum ParticipationStatus {
+PENDING
+APPROVED
+REJECTED
+BANNED
+}
+
+enum InvitationStatus {
+PENDING
+ACCEPTED
+DECLINED
+}
+
+enum PaymentStatus {
+SUCCESS
+FAILED
+PENDING
+CANCELLED
+}
+

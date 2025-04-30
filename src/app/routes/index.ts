@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import { ReviewRouter } from '../modules/Review/review.router';
 
 const router = Router();
 
 const moduleRoutes = [
   {
-    path: '/',
-    route: customerRoute,
+    path: '/review',
+    route: ReviewRouter,
   }
 ];
 
