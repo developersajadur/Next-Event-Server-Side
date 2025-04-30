@@ -8,39 +8,21 @@ import config from '../config';
 
 const Auth = (...requiredRoles: Role[]) => {
   return catchAsync(async (req, res, next) => {
-    const token = req.cookies?.token;
-    console.log(token);
+    // const token = req.headers.authorization;
+    const token = req.headers.authorization?.split(' ')[1]; 
 
-    // console.log('Received Cookies:', req.cookies.refreshToken);
-    // console.log('Extracted Token:', token);
 
     if (!token) {
       throw new AppError(status.UNAUTHORIZED, 'Authorization token missing!');
     }
 
-    let decoded;
-    try {
-      decoded = jwtHelpers.verifyToken(
-        token,
-        config.jwt.ACCESS_TOKEN_SECRET as string,
-      );
-    } catch (err) {
-      // console.error('Token verification failed:', err);
-      throw new AppError(status.UNAUTHORIZED, 'Invalid or expired token');
-    }
-
-    // console.log('Decoded Token:', decoded);
-
-    const { email, exp } = decoded;
-
-    if (exp && Date.now() >= exp * 1000) {
-      throw new AppError(status.UNAUTHORIZED, 'Token expired.');
-    }
+    const decoded = jwtHelpers.verifyToken(token, config.jwt.ACCESS_TOKEN_SECRET as string);
+    (req as any).user = decoded;
+    const { email } = decoded;
 
     const user = await prisma.user.findUnique({
       where: { email },
     });
-
     if (!user) {
       throw new AppError(status.UNAUTHORIZED, 'User not found!');
     }
