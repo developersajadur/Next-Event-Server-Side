@@ -29,6 +29,29 @@ const createEvent = async (Request: any) => {
     return result
 }
 
+const updateEvent = async (Request: any) => {
+
+    const payload = Request.body
+    const bannerImage: Express.Multer.File = Request.file
+
+    payload.organizerId = String(Request.user.id)
+
+
+
+    if (bannerImage) {
+        const UploadToCloudinary = await fileUploads.uploadToCloudinary(bannerImage)
+        payload.bannerImage = UploadToCloudinary.secure_url
+    }
+    const result = await prisma.event.update({
+        where: {
+            id: Request.params.id
+        },
+        data: payload
+
+    })
+    return result
+}
+
 
 const getAllEvents = async (query: any, options: any) => {
 
@@ -92,7 +115,25 @@ const getAllEvents = async (query: any, options: any) => {
 
 }
 
+const getSingleEvent = async (id: string) => {
+    const result = await prisma.event.findUniqueOrThrow({
+        where: {  id },
+    })
+    return result
+    
+    }
+const deleteEvent = async (id: string) => {
+    await prisma.event.findUniqueOrThrow({
+        where: {  id },
+    })
 
+    const result = await prisma.event.delete({
+        where: { id },
+        
+    })
+    return result
+    
+    }
 export const eventService = {
-    createEvent, getAllEvents
+    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent
 };
