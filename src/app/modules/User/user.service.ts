@@ -42,6 +42,11 @@ const getAllUsersFromDB = async () => {
 // delete user
 const deleteUserFromDB = async (id: string) => {
   // console.log(id)
+  await prisma.user.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
   const result = await prisma.user.delete({
     where: {
       id,
