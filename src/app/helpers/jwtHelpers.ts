@@ -1,6 +1,10 @@
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 
-const createToken = (payload: any, secret: Secret, expiresIn: any) => {
+import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+interface IPayload {
+  email: string,
+  role: "ADMIN" | "USER"
+}
+const createToken = (payload: IPayload, secret: Secret, expiresIn: number | undefined) => {
   const token = jwt.sign(payload, secret, {
     algorithm: 'HS256',
     expiresIn,

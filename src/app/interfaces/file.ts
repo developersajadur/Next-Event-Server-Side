@@ -1,26 +1,26 @@
 export type ICLoudinaryResponse = {
-  asset_id: String;
-  public_id: String;
-  version: Number;
-  version_id: String;
-  signature: String;
-  width: Number;
-  height: Number;
-  format: String;
-  resource_type: String;
-  created_at: String;
-  tags: String[];
-  bytes: Number;
-  type: String;
-  etag: String;
-  placeholder: Boolean;
-  url: String;
-  secure_url: String;
-  asset_folder: String;
-  display_name: String;
+  asset_id: string;
+  public_id: string;
+  version: number;
+  version_id: string;
+  signature: string;
+  width: number;
+  height: number;
+  format: string;
+  resource_type: string;
+  created_at: string;
+  tags: string[];
+  bytes: number;
+  type: string;
+  etag: string;
+  placeholder: boolean;
+  url: string;
+  secure_url: string;
+  asset_folder: string;
+  display_name: string;
   overwritten: true;
-  original_filename: String;
-  api_key: String;
+  original_filename: string;
+  api_key: string;
 };
 
 export type IFile = {
