@@ -8,7 +8,8 @@ import config from '../config';
 
 const Auth = (...requiredRoles: Role[]) => {
   return catchAsync(async (req, res, next) => {
-    const token = req.cookies?.refreshToken;
+    const token = req.cookies?.token;
+    console.log(token);
 
     // console.log('Received Cookies:', req.cookies.refreshToken);
     // console.log('Extracted Token:', token);
@@ -21,7 +22,7 @@ const Auth = (...requiredRoles: Role[]) => {
     try {
       decoded = jwtHelpers.verifyToken(
         token,
-        config.jwt.REFRESH_TOKEN_SECRET as string,
+        config.jwt.ACCESS_TOKEN_SECRET as string,
       );
     } catch (err) {
       // console.error('Token verification failed:', err);
