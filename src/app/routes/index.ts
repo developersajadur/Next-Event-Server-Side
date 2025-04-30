@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { authRoutes } from '../modules/auth/Auth.routes';
-import { userRouter } from '../modules/user/user.routes';
 import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
+import { userRouter } from '../modules/User/user.routes';
+import { authRoutes } from '../modules/Auth/Auth.routes';
 
 const router = Router();
 
