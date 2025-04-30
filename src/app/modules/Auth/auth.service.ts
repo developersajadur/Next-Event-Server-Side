@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import config from '../../config';
+import AppError from '../../errors/AppError';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import prisma from '../../shared/prisma';
 
@@ -9,6 +10,9 @@ const loginUser = async (data: { email: string; password: string }) => {
       email: data.email,
     },
   });
+  if (result.isBlocked) {
+    throw new AppError(403, 'User is blocked');
+  }
 
   const isCorrectPassword: boolean = await bcrypt.compare(
     data.password,
@@ -16,17 +20,17 @@ const loginUser = async (data: { email: string; password: string }) => {
   );
 
   if (!isCorrectPassword) {
-    throw new Error('Password did not match');
+    throw new AppError(403,'Password did not match');
   }
 
   const accessToken = jwtHelpers.createToken(
-    { email: result.email, role: result.role, id:result.id },
+    { email: result.email, role: result.role, id: result.id },
     config.jwt.ACCESS_TOKEN_SECRET as string,
     config.jwt.ACCESS_TOKEN_EXPIRES_IN as string,
   );
 
   const refreshToken = jwtHelpers.createToken(
-    { email: result.email, role: result.role, id:result.id },
+    { email: result.email, role: result.role, id: result.id },
     config.jwt.REFRESH_TOKEN_SECRET as string,
     config.jwt.REFRESH_TOKEN_EXPIRES_IN as string,
   );
@@ -45,11 +49,11 @@ const refreshToken = async (token: string) => {
       token,
       config.jwt.REFRESH_TOKEN_SECRET as string,
     );
-    console.log("decoded data", decodedData)
+    console.log('decoded data', decodedData);
   } catch (error) {
     throw new Error('You are not authorized');
   }
- 
+
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: decodedData.email,
