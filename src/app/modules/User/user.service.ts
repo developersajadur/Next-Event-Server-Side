@@ -7,12 +7,12 @@ import { publicUserSelectFields } from './user.interface';
 
 // createUserIntoDB
 const createUserIntoDB = async (req: Request) => {
-  console.log(req.body);
   if (req.file) {
     const file = req.file as IFile;
     const cloudinaryRes = await fileUploads.uploadToCloudinary(file);
-    req.body.profileImage = cloudinaryRes.secure_url;
+    req.body.profileImage = await cloudinaryRes.secure_url;
   }
+  // console.log(req.body.profileImage);
 
   const hashPassword = await bcrypt.hash(req.body.password, 12);
 

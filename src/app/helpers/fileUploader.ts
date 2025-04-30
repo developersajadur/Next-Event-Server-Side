@@ -8,7 +8,7 @@ import { ICLoudinaryResponse, IFile } from '../interfaces/file';
 cloudinary.config({
   cloud_name: config.cloudinary.CLOUD_NAME,
   api_key: config.cloudinary.CLOUD_API_KEY,
-  api_secret: config.cloudinary.CLOUD_API_SECRET, // Click 'View API Keys' above to copy your API secret
+  api_secret: config.cloudinary.CLOUD_API_SECRET,
 });
 
 // multer
