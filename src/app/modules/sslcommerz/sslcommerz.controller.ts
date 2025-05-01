@@ -18,12 +18,18 @@ const validatePaymentService = catchAsync(async (req, res) => {
       success: true,
       message: "Payment successful",
       data: {
-        success_url: config.ssl.success_url as string
+        redirect_url: config.ssl.success_url as string
       },
     })
-    res.redirect(301, config.ssl.success_url as string);
   } else {
-    res.redirect(301, config.ssl.failed_url as string);
+    sendResponse(res, {
+      statusCode: status.PAYMENT_REQUIRED,
+      success: false,
+      message: "Payment failed",
+      data: {
+        redirect_url: config.ssl.failed_url as string
+      },
+    })
   }
 });
 

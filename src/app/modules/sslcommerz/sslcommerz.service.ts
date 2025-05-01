@@ -90,6 +90,13 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
       throw new AppError(status.BAD_REQUEST, "Invalid transaction response.");
     }
     if (gatewayData.status === "INVALID") {
+      await prisma.payment.update({
+        where: { transactionId: tran_id },
+        data: {
+          status: "Failed",
+          gatewayResponse: gatewayData as any || null,
+        },
+      })
       throw new AppError(status.PAYMENT_REQUIRED, "Payment failed.");
     }
 
@@ -114,8 +121,8 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
       const updatedPayment = await tx.payment.update({
         where: { transactionId: tran_id },
         data: {
-          status: paymentStatus
-          // gatewayResponse: gatewayData as any,
+          status: paymentStatus,
+          gatewayResponse: gatewayData as any || null,
         },
       });
       // console.log(updatedPayment);
