@@ -85,12 +85,26 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
   try {
     const validationResponse = await sslcz.transactionQueryByTransactionId({ tran_id });
     const gatewayData = validationResponse.element?.[0];
-
+    // console.log(gatewayData);
     if (!gatewayData) {
       throw new AppError(status.BAD_REQUEST, "Invalid transaction response.");
     }
+    if (gatewayData.status === "INVALID") {
+      throw new AppError(status.PAYMENT_REQUIRED, "Payment failed.");
+    }
+
+    const paymentRecord = await prisma.payment.findUnique({
+      where: { transactionId: tran_id },
+      include: { user: true, event: true },
+    });
+    if(!paymentRecord){
+      throw new AppError(status.NOT_FOUND, "Payment record not found.");
+    }
+    // console.log(paymentRecord.user);
+    const user = paymentRecord.user;
 
     const paymentStatus = ["VALID", "VALIDATED"].includes(gatewayData.status) ? "Paid" : "Failed";
+    // console.log(paymentStatus);
 
     if (paymentStatus === "Failed") {
       throw new AppError(status.PAYMENT_REQUIRED, "Payment failed.");
@@ -99,12 +113,12 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
     const result = await prisma.$transaction(async (tx) => {
       const updatedPayment = await tx.payment.update({
         where: { transactionId: tran_id },
-        include: { user: true, event: true },
         data: {
-          status: paymentStatus,
-          gatewayResponse: gatewayData as any,
+          status: paymentStatus
+          // gatewayResponse: gatewayData as any,
         },
       });
+      // console.log(updatedPayment);
 
       if (!updatedPayment) {
         throw new AppError(status.NOT_FOUND, "Payment record not found or not updated.");
@@ -118,10 +132,29 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
 
       if (payment.status === "Paid") {
         const emailContent = await EmailHelper.createEmailContent(
-          { userName: gatewayData.cus_name || "User" },
+          {
+            invoiceId: paymentRecord.transactionId,
+            createdAt: new Date(paymentRecord.createdAt).toLocaleDateString('en-BD'),
+            user: {
+              name: user.name,
+              email: user.email,
+            },
+            event: {
+              title: paymentRecord.event.title,
+            },
+            eventType: paymentRecord.event.type,
+            paymentMethod: paymentRecord.method,
+            paymentStatus: paymentRecord.status,
+            totalAmount: paymentRecord.amount.toFixed(2),
+            discount: (0).toFixed(2),
+            deliveryCharge: (0).toFixed(2),
+            finalAmount: paymentRecord.amount.toFixed(2),
+            year: new Date().getFullYear(),
+          },
           "orderInvoice"
-        );
-        const pdfBuffer = await generateOrderInvoicePDF(gatewayData);
+        );        
+        
+        const pdfBuffer = await generateOrderInvoicePDF(paymentRecord);
         const attachment = {
           filename: `Invoice_${tran_id}.pdf`,
           content: pdfBuffer,
@@ -129,7 +162,7 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
         };
 
         await EmailHelper.sendEmail(
-          gatewayData.cus_email,
+          user.email,
           emailContent,
           "Order confirmed - Payment Success!",
           attachment
@@ -139,7 +172,10 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
       }
 
       return false;
-    });
+    },{
+      timeout: 100000
+    }
+  );
 
     return result;
   } catch (error) {

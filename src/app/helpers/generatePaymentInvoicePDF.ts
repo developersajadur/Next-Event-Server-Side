@@ -74,8 +74,21 @@ export const generateOrderInvoicePDF = async (
 
       const rowY = tableY + 20;
       doc.font('Helvetica').fillColor('#000000').fontSize(11);
+      
+      // Ensure payment.amount is a valid number
+      // let amount: number;
+      
+      // if (typeof payment.amount === 'string') {
+      //   amount = parseFloat(payment.amount);
+      // } else if (typeof payment.amount === 'number') {
+      //   amount = payment.amount;
+      // } else {
+      //   throw new Error('Invalid payment amount: must be a number or numeric string');
+      // }
+      
       doc.text('Total Payment', 50, rowY);
       doc.text(`${payment.amount.toFixed(2)} /-`, 400, rowY, { width: 100, align: 'right' });
+      
 
       // FOOTER
       doc.moveDown(3);

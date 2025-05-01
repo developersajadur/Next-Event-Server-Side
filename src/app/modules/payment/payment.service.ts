@@ -86,49 +86,9 @@ const createPayment = async (payload: TPayment) => {
     result = payment;
   }
 
-  // Step 4: Generate invoice PDF after transaction
-  const pdfBuffer = await generateOrderInvoicePDF(payment);
-
-  // Step 5: Generate email content and send email
-  const emailContent = await EmailHelper.createEmailContent(
-    {
-      invoiceId: payment.id,
-      createdAt: payment.createdAt.toISOString(),
-      user: {
-        name: user.name,
-        email: user.email,
-      },
-      event: {
-        title: event.title,
-      },
-      eventType: event.type || 'Public',
-      paymentMethod: payment.method,
-      paymentStatus: payment.status,
-      totalAmount: payment.amount,
-      discount: '0.00',
-      deliveryCharge: '0.00',
-      finalAmount: payment.amount,
-      year: new Date().getFullYear(),
-    },
-    'orderInvoice'
-  );
-
-  const attachment = {
-    filename: `Invoice_${payment.id}.pdf`,
-    content: pdfBuffer,
-    encoding: 'base64',
-  };
-
-  // Send email with the generated PDF
-  await EmailHelper.sendEmail(
-    user.email,
-    emailContent,
-    'Order confirmed!',
-    attachment
-  );
-
   // Return the result of the payment (either SSL payment URL or the payment object)
   return result;
+  // return payment;
 };
 
 export const paymentService = {
