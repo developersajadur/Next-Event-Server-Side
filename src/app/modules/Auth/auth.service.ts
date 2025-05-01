@@ -52,7 +52,7 @@ const refreshToken = async (token: string) => {
       token,
       config.jwt.REFRESH_TOKEN_SECRET as string,
     );
-  } catch (error) {
+  } catch {
     throw new Error('You are not authorized');
   }
 
@@ -74,7 +74,12 @@ const refreshToken = async (token: string) => {
 };
 
 // password change
-const passwordChange = async (user: any, payload: any) => {
+interface PasswordChangePayload {
+  oldPassword: string;
+  newPassword: string;
+}
+const passwordChange = async (user: {email:string, password:string}, payload: PasswordChangePayload) => {
+  // console.log(user)
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -167,7 +172,7 @@ const resetPassword = async (
     });
 
     // Verify the reset password token
-    const decoded = jwtHelpers.verifyToken(
+   jwtHelpers.verifyToken(
       token,
       config.jwt.RESET_PASSWORD_SECRET as Secret,
     );
@@ -186,7 +191,8 @@ const resetPassword = async (
     });
 
     return { success: true, message: 'Password updated successfully' };
-  } catch (error) {
+  } catch {
+    
     throw new AppError(status.FORBIDDEN, 'Forbidden: Unable to reset password');
   }
 };
