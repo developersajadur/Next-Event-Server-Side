@@ -49,8 +49,54 @@ const passwordChange = catchAsync(
     });
   },
 );
+
+// forgot password
+const forgotPassword = catchAsync(async (req: Request, res: Response) => {
+  await authService.forgotPassword(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'check your email',
+    data: null,
+  });
+});
+
+// reset-password
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const token = req.headers['authorization']?.replace('Bearer ', '') || '';
+
+  if (!token) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: httpStatus.BAD_REQUEST,
+      message: 'Token is required!',
+      data: null,
+    });
+  }
+
+  try {
+    await authService.resetPassword(token, req.body); 
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'Password reset successfully!',
+      data: null,
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      success: false,
+      statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+      message: error.message || 'Something went wrong',
+      data: null,
+    });
+  }
+});
+
 export const authControlller = {
   loginUser,
   refreshToken,
   passwordChange,
+  forgotPassword,
+  resetPassword,
 };
