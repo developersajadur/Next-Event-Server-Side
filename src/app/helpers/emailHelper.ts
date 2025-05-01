@@ -34,7 +34,7 @@ const sendEmail = async (
     });
 
     const mailOptions: nodemailer.SendMailOptions = {
-      from: '"NextMart" <support@nextmart.com>',
+      from: '"Next-Event" <support@nextevent.com>',
       to: email,
       subject,
       html,
@@ -50,10 +50,10 @@ const sendEmail = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
+    console.log('✅ Email sent:', info.messageId);
     return info;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('❌ Error sending email:', error);
     throw new Error('Failed to send email');
   }
 };
@@ -64,12 +64,11 @@ const createEmailContent = async (
 ): Promise<string> => {
   try {
     const templatePath = path.join(process.cwd(), 'src', 'templates', `${templateType}.template.hbs`);
-
     const content = await fs.readFile(templatePath, 'utf8');
     const compiled = handlebars.compile(content);
     return compiled(data);
   } catch (error) {
-    console.error('Error creating email content:', error);
+    console.error('❌ Error creating email content:', error);
     throw new AppError(status.FORBIDDEN, 'Failed to create email content');
   }
 };

@@ -30,6 +30,7 @@ export default {
     store_name: process.env.STORE_NAME,
     payment_api: process.env.PAYMENT_API,
     validation_api: process.env.VALIDATION_API,
+    ipn_url: process.env.SSL_IPN_URL,
     store_id: process.env.STORE_ID,
     store_pass: process.env.STORE_PASSWORD,
     validation_url: process.env.VALIDATION_URL,

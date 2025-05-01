@@ -9,22 +9,26 @@ datasource db {
 }
 
 model User {
-  id             String        @id @default(uuid())
-  name           String
-  email          String        @unique
-  password       String
-  phoneNumber    String        @unique
-  profileImage   String?
-  role           Role          @default(USER)
-  isDeleted      Boolean       @default(false)
-  isBlocked      Boolean       @default(false)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  events         Event[]       @relation("UserEvents")
-  payments       Payment[]
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String
+  address      String?
+  bio          String?
+  gender       String?
+  occupation   String?
+  phoneNumber  String        @unique
+  profileImage String?
+  role         Role          @default(USER)
+  isDeleted    Boolean       @default(false)
+  isBlocked    Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  events       Event[]       @relation("UserEvents")
+  payments     Payment[]
   participants Participant[]
-  invites        Invite[]      @relation("UserInvites")
-  reviews        Review[]
+  invites      Invite[]      @relation("UserInvites")
+  reviews      Review[]
 
   @@map("users")
 }
@@ -39,7 +43,7 @@ model Event {
   bannerImage  String?
   type         EventType
   isPaid       Boolean
-  fee          Decimal?
+  fee          Decimal
   isDeleted    Boolean       @default(false)
   organizer    User          @relation("UserEvents", fields: [organizerId], references: [id])
   organizerId  String
@@ -61,8 +65,8 @@ model Payment {
   event           Event         @relation(fields: [eventId], references: [id])
   amount          Decimal
   method          PaymentMethod
-  status          PaymentStatus
-  transactionId   String?  @unique
+  status          PaymentStatus @default(Pending)
+  transactionId   String?       @unique
   gatewayResponse Json?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
