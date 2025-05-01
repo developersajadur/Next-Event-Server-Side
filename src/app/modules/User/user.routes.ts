@@ -15,7 +15,7 @@ router.post(
 
 // get all users from database
 router.get('/', userController.getAllUsersFromDB);
-
+router.get('/:id', userController.getSingleUserFromDB);
 // delete user
 router.delete('/:id', userController.deleteUserFromDB);
 export const userRouter = router;

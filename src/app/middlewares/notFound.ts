@@ -1,12 +1,16 @@
 import { RequestHandler } from 'express';
-import status from 'http-status';
+// import httpStatus from 'http-status';
+import { NextFunction, Request, Response } from "express";
 
-const notFound: RequestHandler = (req, res, next) => {
-  res.status(status.NOT_FOUND).json({
+import httpStatus from "http-status";
+const notFound = (req: Request, res: Response, next: NextFunction) => {
+  res.status(httpStatus.NOT_FOUND).json({
     success: false,
-    message: 'API Not Found !!',
-    error: '',
+    message: "API NOT FOUND",
+    error: {
+      path: req.originalUrl,
+      message: "your requested path is not found",
+    },
   });
 };
-
 export default notFound;

@@ -38,6 +38,15 @@ const getAllUsersFromDB = async () => {
   });
   return result;
 };
+// get single user by id
+const getSingleUserFromDB = async (id:string) => {
+  const result = await prisma.user.findUniqueOrThrow({
+    where: {
+      id
+    }
+  });
+  return result;
+};
 
 // delete user
 const deleteUserFromDB = async (id: string) => {
@@ -56,6 +65,7 @@ const deleteUserFromDB = async (id: string) => {
 };
 export const userService = {
   createUserIntoDB,
+  getSingleUserFromDB,
   getAllUsersFromDB,
   deleteUserFromDB,
 };

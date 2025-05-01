@@ -1,7 +1,6 @@
-import dotenv from 'dotenv';
-import path from 'path';
-
-dotenv.config({ path: path.join((process.cwd(), '.env')) });
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.join(process.cwd(), ".env") });
 
 export default {
   node_env: process.env.NODE_ENV,
@@ -16,10 +15,13 @@ export default {
     ACCESS_TOKEN_EXPIRES_IN: process.env.ACCESS_TOKEN_EXPIRES_IN,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN,
+    RESET_PASSWORD_SECRET: process.env.RESET_PASSWORD_SECRET,
+    RESET_PASSWORD_TOKEN_EXP_IN: process.env.RESET_PASSWORD_TOKEN_EXP_IN,
+    RESET_PASSWORD_LINK: process.env.RESET_PASSWORD_LINK,
   },
-  RESET_PASSWORD_SECRET: process.env.RESET_PASSWORD_SECRET,
-  RESET_PASSWORD_TOKEN_EXP_IN: process.env.RESET_PASSWORD_TOKEN_EXP_IN,
-  RESET_PASSWORD_LINK: process.env.RESET_PASSWORD_LINK,
+
+
+
   emailSender: {
     email: process.env.EMAIL,
     app_password: process.env.APP_PASSWORD,
@@ -35,5 +37,5 @@ export default {
     success_url: process.env.SUCCESS_URL,
     failed_url: process.env.FAILED_URL,
     cancel_url: process.env.CANCEL_URL,
- },
+  },
 };
