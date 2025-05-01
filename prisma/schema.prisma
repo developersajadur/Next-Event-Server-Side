@@ -81,8 +81,8 @@ model Participant {
   eventId   String
   status    ParticipationStatus @default(PENDING)
   hasPaid   Boolean             @default(false)
-  isDeleted Boolean             @default(false)
   joinedAt  DateTime?
+  isDeleted Boolean             @default(false)
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 
@@ -95,15 +95,15 @@ model Participant {
 model Invite {
   id        String           @id @default(uuid())
   eventId   String
-  inviteeId String
+  inviteId  String
   hasPaid   Boolean          @default(false)
   status    InvitationStatus @default(PENDING)
   isDeleted Boolean          @default(false)
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  event   Event @relation(fields: [eventId], references: [id])
-  invitee User  @relation("UserInvites", fields: [inviteeId], references: [id])
+  event  Event @relation(fields: [eventId], references: [id])
+  invite User  @relation("UserInvites", fields: [inviteId], references: [id])
 
   @@map("invites")
 }
