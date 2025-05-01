@@ -132,16 +132,23 @@ const forgotPassword = async (payload: { email: string }) => {
   await emailSender(
     userData.email,
 
-    `<div>
-    <p> Dear User,</p>
-    <p> Your password reset Link 
-         <a href=${resetPassLink}>
-         <button>
-         Reset Password
-         <button>
-         </a>
+    `<div style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px; border-radius: 8px;">
+    <p style="font-size: 16px; color: #333;">Dear User,</p>
+  
+    <p style="font-size: 16px; color: #333;">
+      We received a request to reset your password. Please click the button below to reset your password.
     </p>
-    </div>
+  
+    <p style="margin-top: 20px;">
+      <a href="${resetPassLink}" 
+         style="text-decoration: none; display: inline-block; background-color: #4CAF50; padding: 12px 24px; color: white; font-size: 16px; border-radius: 4px; text-align: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease;">
+        <i class="fas fa-lock" style="margin-right: 8px;"></i> Reset Password
+      </a>
+    </p>
+  
+    <p style="font-size: 14px; color: #777;">If you did not request a password reset, please ignore this email.</p>
+  </div>
+  
     `,
   );
 };
