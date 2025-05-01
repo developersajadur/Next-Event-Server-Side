@@ -6,8 +6,6 @@ export type TUserPayload = {
     profileImage?: string;
   };
 
-
-
   export const publicUserSelectFields = {
     id: true,
     name: true,
