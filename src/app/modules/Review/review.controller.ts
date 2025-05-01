@@ -3,8 +3,7 @@ import sendResponse from "../../helpers/sendResponse";
 import httpStatus from "http-status";
 import { ReviewServices } from "./review.service";
 
-const createReview = catchAsync(async (req, res) => {
-  console.log("data",req.body)
+const createReview = catchAsync(async (req, res) => { 
     const result = await ReviewServices.createReview(req.body);  
     sendResponse(res, {
       statusCode: httpStatus.CREATED,

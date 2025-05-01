@@ -9,7 +9,6 @@ const createReview = async(payload: IReview) => {
         rating: payload.rating,
         comment: payload.comment,
     };
-
     const result = await prisma.review.create({
         data: reviewData,
     });
@@ -17,8 +16,7 @@ const createReview = async(payload: IReview) => {
 }
 
 
-const getAllReview = async() => {
-    
+const getAllReview = async() => {    
     const result = await prisma.review.findMany();
     return result;
 }

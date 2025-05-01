@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/', ReviewController.createReview)
 router.get('/', ReviewController.getAllReview)
-router.delete('/', ReviewController.deleteReview)
+router.delete('/:id', ReviewController.deleteReview)
 
 
 export const ReviewRouter = router;
