@@ -20,8 +20,21 @@ const createOrder = catchAsync(async (req: Request & {user?: any}, res) => {
     });
   });
 
+  const getMyPayments = catchAsync(async (req: Request & {user?: any}, res) => {
+    const user = req.user;
+    const result = await paymentService.getMyPayments(user.id);
+  
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: "Payments retrieved successfully",
+      data: result,
+    });
+  })
+
 
   export const paymentController = {
     createOrder,
+    getMyPayments
   }
   

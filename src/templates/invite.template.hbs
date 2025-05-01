@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>You're Invited!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f6f8fb;
+        margin: 0;
+        padding: 40px 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      h2 {
+        color: #333;
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #4f46e5;
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 14px;
+        color: #999;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Hello {{name}},</h2>
+      <p>
+        You have been invited to the event <strong>{{eventTitle}}</strong> by
+        <strong>{{senderName}}</strong>.
+      </p>
+      <p>Please click the button below to view and accept your invitation:</p>
+      <a href="{{eventLink}}" class="button">View Invitation</a>
+      <div class="footer">
+        <p>Regards,<br />The Next Event Team</p>
+      </div>
+    </div>
+  </body>
+</html>

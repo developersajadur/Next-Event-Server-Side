@@ -9,26 +9,28 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
-  email        String        @unique
+  email        String   @unique
   password     String
   address      String?
   bio          String?
   gender       String?
   occupation   String?
-  phoneNumber  String        @unique
+  phoneNumber  String   @unique
   profileImage String?
-  role         Role          @default(USER)
-  isDeleted    Boolean       @default(false)
-  isBlocked    Boolean       @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  events       Event[]       @relation("UserEvents")
-  payments     Payment[]
-  participants Participant[]
-  invites      Invite[]      @relation("UserInvites")
-  reviews      Review[]
+  role         Role     @default(USER)
+  isDeleted    Boolean  @default(false)
+  isBlocked    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  events          Event[]       @relation("UserEvents")
+  payments        Payment[]
+  participants    Participant[]
+  sentInvites     Invite[]      @relation("SentInvites") // inviter
+  receivedInvites Invite[]      @relation("ReceivedInvites") // invitee
+  reviews         Review[]
 
   @@map("users")
 }
@@ -93,17 +95,18 @@ model Participant {
 }
 
 model Invite {
-  id        String           @id @default(uuid())
-  eventId   String
-  inviteId  String
-  hasPaid   Boolean          @default(false)
-  status    InvitationStatus @default(PENDING)
-  isDeleted Boolean          @default(false)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  inviteReceiverId String
+  inviteSenderId   String
+  eventId          String
+  status           InvitationStatus @default(PENDING)
+  isDeleted        Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
-  event  Event @relation(fields: [eventId], references: [id])
-  invite User  @relation("UserInvites", fields: [inviteId], references: [id])
+  event   Event @relation(fields: [eventId], references: [id])
+  inviter User  @relation("SentInvites", fields: [inviteSenderId], references: [id])
+  invitee User  @relation("ReceivedInvites", fields: [inviteReceiverId], references: [id])
 
   @@map("invites")
 }

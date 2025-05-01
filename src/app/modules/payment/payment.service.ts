@@ -91,7 +91,21 @@ const createPayment = async (payload: TPayment) => {
   return newPayment;
 };
 
+const getMyPayments = async (userId: string) => {
+  const payments = await prisma.payment.findMany({
+    where: {
+      userId
+    },
+    include: {
+      event: true,
+    },
+  });
+
+  return payments;
+}
+
 
 export const paymentService = {
   createPayment,
+  getMyPayments
 };
