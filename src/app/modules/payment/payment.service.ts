@@ -4,8 +4,6 @@ import httpStatus from 'http-status';
 import { TPayment } from './payment.interface';
 import { generateTransactionId } from './payment.utils';
 import { sslCommerzService } from '../sslcommerz/sslcommerz.service';
-import { generateOrderInvoicePDF } from '../../helpers/generatePaymentInvoicePDF';
-import { EmailHelper } from '../../helpers/emailHelper';
 import AppError from '../../errors/AppError';
 
 const createPayment = async (payload: TPayment) => {
@@ -17,38 +15,47 @@ const createPayment = async (payload: TPayment) => {
     gatewayResponse = null,
   } = payload;
 
-  // Step 1: Check if the event exists and is not deleted
-  const isEventExist = await prisma.event.findUnique({
+  // Step 1: Validate Event Existence & Status
+  const event = await prisma.event.findUnique({
     where: { id: eventId },
   });
 
-  if (!isEventExist) {
+  if (!event) {
     throw new AppError(httpStatus.NOT_FOUND, 'Event not found!');
-  } else if (isEventExist.isDeleted) {
+  }
+
+  if (event.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, 'Event is deleted!');
+  }
+
+  if (!event.isPaid) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'This event is free. No payment required.');
   }
 
   const transactionId = generateTransactionId();
 
-  // Step 2: Start transaction for payment creation
-  const payment = await prisma.$transaction(async (tx) => {
-
+  // Step 2: Create Payment inside Transaction
+  const newPayment = await prisma.$transaction(async (tx) => {
     const existingPayment = await tx.payment.findUnique({
       where: {
         userId_eventId: {
           userId,
           eventId,
         },
-      }
+      },
     });
+
     if (existingPayment) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'You have already registered for this event!');
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You have already registered for this event!',
+      );
     }
 
-    const payment = await tx.payment.create({
+    const createdPayment = await tx.payment.create({
       data: {
         transactionId,
-        amount: Number(isEventExist.fee),
+        amount: Number(event.fee),
         method,
         status,
         userId,
@@ -61,18 +68,15 @@ const createPayment = async (payload: TPayment) => {
       },
     });
 
-    return payment;
+    return createdPayment;
   });
 
-  // Step 3: Perform non-transaction work outside the transaction (async)
-  const { user, event } = payment;
+  // Step 3: Handle Gateway Logic (outside transaction)
+  const { user } = newPayment;
 
-  let result;
-
-  // If method is 'Online', call SSLCommerz service to initialize payment
   if (method === 'Online') {
     const sslResponse = await sslCommerzService.initPayment({
-      total_amount: Number(isEventExist.fee),
+      total_amount: Number(event.fee),
       tran_id: transactionId,
       cus_name: user.name,
       cus_email: user.email,
@@ -81,15 +85,12 @@ const createPayment = async (payload: TPayment) => {
       product_category: event.type,
     });
 
-    result = { paymentUrl: sslResponse };
-  } else {
-    result = payment;
+    return { paymentUrl: sslResponse };
   }
 
-  // Return the result of the payment (either SSL payment URL or the payment object)
-  return result;
-  // return payment;
+  return newPayment;
 };
+
 
 export const paymentService = {
   createPayment,
