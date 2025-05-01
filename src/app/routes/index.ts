@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { ReviewRouter } from '../modules/Review/review.router';
+import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
 import { userRouter } from '../modules/User/user.routes';
 import { authRoutes } from '../modules/Auth/Auth.routes';
+import { ReviewRouter } from '../modules/Review/review.router';
 
 const router = Router();
 
@@ -17,6 +18,10 @@ const moduleRoutes = [
   {
     path: '/review',
     route: ReviewRouter,
+  },
+  {
+    path: '/payments',
+    route: SSLRoutes,
   },
 ];
 
