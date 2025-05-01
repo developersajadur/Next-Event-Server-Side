@@ -8,12 +8,28 @@ import AppError from "../../errors/AppError";
 
 const validatePaymentService = catchAsync(async (req, res) => {
   const tran_id = req.query.tran_id as string;
+  // console.log(tran_id);
   const result = await sslCommerzService.validatePayment(tran_id);
+  console.log(result);
 
   if (result) {
-    res.redirect(301, config.ssl.success_url as string);
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: "Payment successful",
+      data: {
+        redirect_url: config.ssl.success_url as string
+      },
+    })
   } else {
-    res.redirect(301, config.ssl.failed_url as string);
+    sendResponse(res, {
+      statusCode: status.PAYMENT_REQUIRED,
+      success: false,
+      message: "Payment failed",
+      data: {
+        redirect_url: config.ssl.failed_url as string
+      },
+    })
   }
 });
 
