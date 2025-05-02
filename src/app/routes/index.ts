@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
 import { userRouter } from '../modules/User/user.routes';
-import { authRoutes } from '../modules/Auth/Auth.routes';
+import { authRoutes } from '../modules/Auth/auth.routes';
 import { eventRoutes } from '../modules/Events/event.routes';
 import { profileRoutes } from '../modules/Profile/profile.routes';
 import { paymentRoute } from '../modules/payment/payment.route';
