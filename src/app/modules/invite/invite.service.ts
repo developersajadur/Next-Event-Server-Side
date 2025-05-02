@@ -1,3 +1,4 @@
+import { participantService } from './../participant/participant.service';
 import prisma from "../../shared/prisma";
 import AppError from "../../errors/AppError";
 import status from "http-status";
@@ -120,8 +121,51 @@ const getMyAllReceivedInvites = async (userId: string) => {
     return invites;
 }
 
+const acceptInvite = async (inviteId: string) => {
+    const result = await prisma.$transaction(async (tx) => {
+
+        const invite = await tx.invite.findUnique({
+            where: { id: inviteId },
+            include: {
+                event: true,
+                inviter: true,
+                invitee: true,
+            },
+        });
+        if(!invite) {
+            throw new AppError(status.NOT_FOUND, "Invite not found");
+        }
+        // console.log(invite.inviteReceiverId, invite.eventId);
+        const dataToCreateParticipant = {
+            eventId: invite.eventId,
+            userId: invite.inviteReceiverId,
+            hasPaid: true,
+          };
+
+
+      const participant =  await participantService.createParticipant(dataToCreateParticipant);
+      // console.log(participant);
+      
+     if(participant){
+        await tx.invite.update({
+            where: { id: inviteId },
+            data: { status: "ACCEPTED" },
+          })
+          await tx.participant.update({
+            where: { id: participant.id },
+            data: { status: "APPROVED" },
+          })
+     }
+
+    });
+
+    return result;
+};
+
+
 export const InviteService = {
   sentInvite,
   getMyAllSendInvites,
-  getMyAllReceivedInvites
+  getMyAllReceivedInvites,
+  acceptInvite
 };

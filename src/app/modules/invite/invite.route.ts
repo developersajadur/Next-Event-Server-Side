@@ -9,6 +9,7 @@ const route = Router();
 route.post("/sent-invite", auth(Role.USER, Role.ADMIN), inviteController.sentInvite )
 route.get("/my-all-sent-invites", auth(Role.USER, Role.ADMIN), inviteController.getMyAllSendInvites )
 route.get("/my-all-received-invites", auth(Role.USER, Role.ADMIN), inviteController.getMyAllReceivedInvites )
+route.post("/accept-invite/:inviteId", auth(Role.USER, Role.ADMIN), inviteController.acceptInvite )
 
 
 
