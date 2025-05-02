@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 export const creatEventValidation = z.object({
     title: z.string({ required_error: 'title is required' }),
-    slug: z.string({ required_error: 'slug is required' }),
     description: z.string({ required_error: 'description is required' }),
     dateTime: z.string({ required_error: 'dateTime is required' }),
     venue: z.string({ required_error: 'venue is required' }),
@@ -14,7 +13,6 @@ export const creatEventValidation = z.object({
 });
 export const updateEventValidation = z.object({
     title: z.string({ required_error: 'title is required' }).optional(),
-    slug: z.string({ required_error: 'slug is required' }).optional(),
     description: z.string({ required_error: 'description is required' }).optional(),
     dateTime: z.string({ required_error: 'dateTime is required' }).optional(),
     venue: z.string({ required_error: 'venue is required' }).optional(),
