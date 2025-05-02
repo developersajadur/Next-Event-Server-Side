@@ -27,9 +27,10 @@ const getAllUsersFromDB = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 // getSingleUserFromDB
 const getSingleUserFromDB = catchAsync(async (req: Request, res: Response) => {
-  const id = req.params.id
+  const id = req.params.id;
   const result = await userService.getSingleUserFromDB(id);
 
   sendResponse(res, {
