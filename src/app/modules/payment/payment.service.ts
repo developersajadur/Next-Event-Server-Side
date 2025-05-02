@@ -35,7 +35,7 @@ const createPayment = async (payload: TPayment) => {
   const transactionId = generateTransactionId();
 
   // Step 2: Create Payment inside Transaction
-  const newPayment = await prisma.$transaction(async (tx) => {
+  const createdPayment = await prisma.$transaction(async (tx) => {
     const existingPayment = await tx.payment.findUnique({
       where: {
         userId_eventId: {
@@ -52,7 +52,7 @@ const createPayment = async (payload: TPayment) => {
       );
     }
 
-    const createdPayment = await tx.payment.create({
+    return await tx.payment.create({
       data: {
         transactionId,
         amount: Number(event.fee),
@@ -62,18 +62,19 @@ const createPayment = async (payload: TPayment) => {
         eventId,
         gatewayResponse: gatewayResponse ?? Prisma.DbNull,
       },
-      include: {
-        user: true,
-        event: true,
-      },
     });
-
-    return createdPayment;
   });
 
-  // Step 3: Handle Gateway Logic (outside transaction)
-  const { user } = newPayment;
+  // Step 3: Refetch related data outside the transaction
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
 
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
+  }
+
+  // Step 4: Handle Online Payment Gateway
   if (method === 'Online') {
     const sslResponse = await sslCommerzService.initPayment({
       total_amount: Number(event.fee),
@@ -88,10 +89,30 @@ const createPayment = async (payload: TPayment) => {
     return { paymentUrl: sslResponse };
   }
 
-  return newPayment;
+  // Step 5: Return payment info for 'Cash' or 'Offline' method
+  return {
+    ...createdPayment,
+    user,
+    event,
+  };
 };
+
+
+const getMyPayments = async (userId: string) => {
+  const payments = await prisma.payment.findMany({
+    where: {
+      userId
+    },
+    include: {
+      event: true,
+    },
+  });
+
+  return payments;
+}
 
 
 export const paymentService = {
   createPayment,
+  getMyPayments
 };

@@ -17,6 +17,23 @@ const createParticipant = async (payload: any) => {
         throw new AppError(status.NOT_FOUND ,"Event not found")
     }
 
+    if(isExistEvent.isPaid){
+        // console.log(payload.userId, payload.eventId);
+        const isExistPayment = await prisma.payment.findUnique({
+            where: {
+                userId_eventId: {
+                    userId: payload.userId,
+                    eventId: payload.eventId,
+                },
+              },
+        })
+        // console.log(isExistPayment);
+
+        if (!isExistPayment) {
+            throw new AppError(status.NOT_FOUND, "Payment not found! Please pay first")
+        }
+    }
+
     const isAlreadyParticipated = await prisma.participant.findFirst({
         where: {
             userId: payload.userId,
@@ -33,6 +50,7 @@ const createParticipant = async (payload: any) => {
 
         data: payload
     })
+    // console.log(result, "fdfddfd");
 
     return result
 }
