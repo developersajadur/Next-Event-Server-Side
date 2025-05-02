@@ -1,20 +1,18 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
+import config from '../../config';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
 import { authService } from './auth.service';
-import config from '../../config';
-
-
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.loginUser(req.body);
   const { refreshToken } = result;
 
   res.cookie('refreshToken', refreshToken, {
-    secure: config.node_env === "production",
+    secure: config.node_env === 'production',
     httpOnly: true,
-    sameSite: "none",
+    sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24 * 365,
   });
   sendResponse(res, {
@@ -81,7 +79,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   }
 
   try {
-    await authService.resetPassword(token, req.body); 
+    await authService.resetPassword(token, req.body);
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
