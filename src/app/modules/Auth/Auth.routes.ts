@@ -12,8 +12,6 @@ router.post(
   Auth(Role.USER, Role.ADMIN),
   authControlller.passwordChange,
 );
-export const authRoutes = router;
-
 router.post(
   '/forgot-password',
   Auth(Role.USER, Role.ADMIN),
@@ -24,3 +22,5 @@ router.post(
   Auth(Role.USER, Role.ADMIN),
   authControlller.resetPassword,
 );
+
+export const authRoutes = router;
