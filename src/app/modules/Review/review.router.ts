@@ -1,11 +1,13 @@
 import express from "express"
 import { ReviewController } from "./review.controller";
+import Auth from "../../middlewares/Auth"
+
 
 const router = express.Router();
 
-router.post('/', ReviewController.createReview)
-router.get('/', ReviewController.getAllReview)
-router.delete('/:id', ReviewController.deleteReview)
+router.post('/',Auth('ADMIN','USER'), ReviewController.createReview)
+router.get('/',Auth('ADMIN'), ReviewController.getAllReview)
+router.delete('/:id',Auth('ADMIN','USER'), ReviewController.deleteReview)
 
 
 export const ReviewRouter = router;
