@@ -41,6 +41,7 @@ const getAllEvents = catchAsync(async (req, res) => {
         data: { data: result.data, meta: result.meta }
     })
 })
+
 const getSingleEvent = catchAsync(async (req, res) => {
 
     const result = await eventService.getSingleEvent(req.params.id);
@@ -51,6 +52,19 @@ const getSingleEvent = catchAsync(async (req, res) => {
         data: result
     })
 })
+const getSingleEventBySlug = catchAsync(async (req, res) => {
+
+    const result = await eventService.getSingleEventBySlug(req.params.slug);
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Event fetched successfully',
+        data: result
+    })
+})
+
+
+
 const deleteEvent = catchAsync(async (req, res) => {
 
     const result = await eventService.deleteEvent(req.params.id);
@@ -63,5 +77,5 @@ const deleteEvent = catchAsync(async (req, res) => {
 })
 
 export const EventController = {
-    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent
+    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent, getSingleEventBySlug
 }

@@ -8,6 +8,8 @@ const router = Router()
 
 router.get('/', EventController.getAllEvents)
 
+router.get('/:slug', EventController.getSingleEventBySlug)
+
 router.get('/:id',Auth('ADMIN','USER'), EventController.getSingleEvent)
 
 router.delete('/:id',Auth('ADMIN'), EventController.deleteEvent)

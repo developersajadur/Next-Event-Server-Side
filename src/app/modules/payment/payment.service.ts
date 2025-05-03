@@ -1,10 +1,12 @@
-import { Prisma } from '@prisma/client';
+import { PaymentMethod, PaymentStatus, Prisma } from '@prisma/client';
 import prisma from '../../shared/prisma';
 import httpStatus from 'http-status';
 import { TPayment } from './payment.interface';
 import { generateTransactionId } from './payment.utils';
 import { sslCommerzService } from '../sslcommerz/sslcommerz.service';
 import AppError from '../../errors/AppError';
+import { IPaginationOptions } from '../../interfaces/pagination';
+import calculatePagination from '../../helpers/CalculatePagination';
 
 const createPayment = async (payload: TPayment) => {
   const {
@@ -110,8 +112,61 @@ const getMyPayments = async (userId: string) => {
   return payments;
 }
 
+const getAllPayments = async (
+  query: Record<string, any>,
+  options: IPaginationOptions,
+) => {
+  const { searchTerm, ...filters } = query;
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
+
+  const where: Prisma.PaymentWhereInput = {
+    ...(searchTerm && {
+      OR: [
+        { user: { name: { contains: searchTerm, mode: 'insensitive' } } },
+        { user: { email: { contains: searchTerm, mode: 'insensitive' } } },
+        { event: { title: { contains: searchTerm, mode: 'insensitive' } } },
+        { method: { equals: searchTerm as PaymentMethod } },
+        { status: { equals: searchTerm as PaymentStatus } },
+      ],
+    }),
+    ...(Object.keys(filters).length > 0 && {
+      AND: Object.entries(filters).map(([key, value]) => {
+        return {
+          [key]:
+            typeof value === 'string' &&
+            (value === 'true' || value === 'false')
+              ? value === 'true'
+              : value,
+        };
+      }),
+    }),
+  };
+
+  const result = await prisma.payment.findMany({
+    where,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy || 'createdAt']: sortOrder || 'desc',
+    },
+    include: {
+      user: true,
+      event: true,
+    },
+  });
+
+  const total = await prisma.payment.count({ where });
+
+  return {
+    meta: { page, limit, total },
+    data: result,
+  };
+};
+
+
 
 export const paymentService = {
   createPayment,
-  getMyPayments
+  getMyPayments,
+  getAllPayments
 };
