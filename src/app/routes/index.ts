@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
-import { userRouter } from '../modules/User/user.routes';
 import { authRoutes } from '../modules/Auth/Auth.routes';
 import { eventRoutes } from '../modules/events/event.routes';
-import { profileRoutes } from '../modules/profile/profile.routes';
-import { paymentRoute } from '../modules/payment/payment.route';
-import { participantRoute } from '../modules/participant/participant.route';
 import { inviteRoute } from '../modules/invite/invite.route';
+import { participantRoute } from '../modules/participant/participant.route';
+import { paymentRoute } from '../modules/payment/payment.route';
+import { profileRoutes } from '../modules/profile/profile.routes';
+import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
+import { userRouter } from '../modules/User/user.routes';
 
 const router = Router();
 

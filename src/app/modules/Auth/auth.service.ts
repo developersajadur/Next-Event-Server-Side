@@ -14,22 +14,25 @@ import emailSender from './emailSender';
 
 // login user
 const loginUser = async (data: ILoginUser) => {
-  const userData = await prisma.user.findUniqueOrThrow({
+  const userData = await prisma.user.findUnique({
     where: {
       email: data.email,
     },
   });
-  if (result.isBlocked) {
-    throw new AppError(403, 'User is blocked');
+  if (!userData) {
+    throw new AppError(404, 'User not found!');
+  }
+  if (userData.isBlocked) {
+    throw new AppError(403, 'User is blocked!');
   }
 
   const isCorrectPassword: boolean = await bcrypt.compare(
     data.password,
-    result.password,
+    userData.password,
   );
 
   if (!isCorrectPassword) {
-    throw new AppError(403, 'Password did not match');
+    throw new AppError(403, 'You have given a wrong password!');
   }
 
   // token payload

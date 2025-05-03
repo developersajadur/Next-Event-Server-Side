@@ -7,7 +7,6 @@ import { jwtHelpers } from '../helpers/jwtHelpers';
 import prisma from '../shared/prisma';
 
 const auth = (...roles: string[]) => {
-  // console.log(roles)
 
   return async (
     req: Request & { user?: any },

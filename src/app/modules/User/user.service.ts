@@ -3,29 +3,34 @@ import bcrypt from 'bcrypt';
 import { Request } from 'express';
 import AppError from '../../errors/AppError';
 import { fileUploads } from '../../helpers/fileUploader';
+import { IFile } from '../../interfaces/file';
 import prisma from '../../shared/prisma';
 import { publicUserSelectFields } from './user.interface';
-import { IFile } from '../../interfaces/file';
 
 // createUserIntoDB
 const createUserIntoDB = async (req: Request) => {
   try {
+    const { name, email, password, phoneNumber } = req.body;
+    if (!name || !email || !password || !phoneNumber) {
+      throw new AppError(400, 'All required fields must be provided');
+    }
+
+    let profileImage: string | undefined;
+
     if (req.file) {
-      const file = req.file as IFile
-      // console.log(file)
+      const file = req.file as IFile;
       const cloudinaryRes = await fileUploads?.uploadToCloudinary(file);
-      // console.log("Cloudinary Response:", cloudinaryRes);
-      req.body.profileImage = await cloudinaryRes.secure_url;
+      profileImage = await cloudinaryRes.secure_url;
     }
 
     const hashPassword = await bcrypt.hash(req.body.password, 12);
 
     const userData = {
-      name: req.body.name,
-      email: req.body.email,
+      name,
+      email,
       password: hashPassword,
-      phoneNumber: req.body.phoneNumber,
-      profileImage: req.body.profileImage,
+      phoneNumber,
+      profileImage: profileImage,
     };
 
     const result = await prisma.user.create({
