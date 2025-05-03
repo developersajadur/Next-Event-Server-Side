@@ -4,53 +4,92 @@ import CalculatePagination from "../../helpers/CalculatePagination";
 import { fileUploads } from "../../helpers/fileUploader";
 import prisma from "../../shared/prisma";
 import { eventSearchableFields } from "./event.constants";
+import slugify from "slugify";
 
 
 
 
 
 const createEvent = async (Request: any) => {
-
-    const payload = Request.body
-    const bannerImage: Express.Multer.File = Request.file
-
-    payload.organizerId = String(Request.user.id)
-
-
-
-    if (bannerImage) {
-        const UploadToCloudinary = await fileUploads.uploadToCloudinary(bannerImage)
-        payload.bannerImage = UploadToCloudinary.secure_url
+    const payload = Request.body;
+    const bannerImage: Express.Multer.File = Request.file;
+  
+    // Set organizerId from authenticated user
+    payload.organizerId = String(Request.user.id);
+  
+    // Generate unique slug
+    const baseSlug = slugify(payload.title, { lower: true, strict: true }).replace(
+      /[^\w\s-]/g,
+      ''
+    );
+    let slug = baseSlug;
+    let counter = 1;
+  
+    while (await prisma.event.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
     }
+  
+    payload.slug = slug;
+  
+    // Handle banner image upload
+    if (bannerImage) {
+      const uploadResult = await fileUploads.uploadToCloudinary(bannerImage);
+      payload.bannerImage = uploadResult.secure_url;
+    }
+  
+    // Create event
     const result = await prisma.event.create({
-        data: payload
+      data: payload,
+    });
+  
+    return result;
+  };
 
-    })
-    return result
-}
-
-const updateEvent = async (Request: any) => {
-
-    const payload = Request.body
-    const bannerImage: Express.Multer.File = Request.file
-
-    payload.organizerId = String(Request.user.id)
-
-
-
-    if (bannerImage) {
-        const UploadToCloudinary = await fileUploads.uploadToCloudinary(bannerImage)
-        payload.bannerImage = UploadToCloudinary.secure_url
+  const updateEvent = async (Request: any) => {
+    const payload = Request.body;
+    const bannerImage: Express.Multer.File = Request.file;
+    const eventId = Request.params.id;
+  
+    payload.organizerId = String(Request.user.id);
+  
+    // Generate updated slug if title is changed
+    if (payload.title) {
+      const baseSlug = slugify(payload.title, { lower: true, strict: true }).replace(
+        /[^\w\s-]/g,
+        ''
+      );
+      let slug = baseSlug;
+      let counter = 1;
+  
+      while (
+        await prisma.event.findFirst({
+          where: {
+            slug,
+            NOT: { id: eventId }, // Avoid conflict with the same event
+          },
+        })
+      ) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+  
+      payload.slug = slug;
     }
+  
+    // Handle banner image upload if new image provided
+    if (bannerImage) {
+      const uploadResult = await fileUploads.uploadToCloudinary(bannerImage);
+      payload.bannerImage = uploadResult.secure_url;
+    }
+  
     const result = await prisma.event.update({
-        where: {
-            id: Request.params.id
-        },
-        data: payload
-
-    })
-    return result
-}
+      where: { id: eventId },
+      data: payload,
+    });
+  
+    return result;
+  };
 
 
 const getAllEvents = async (query: any, options: any) => {
