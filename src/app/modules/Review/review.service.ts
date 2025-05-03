@@ -17,7 +17,7 @@ const createReview = async (payload: any, id: string) => {
   
     const existingReview = await prisma.review.findFirst({
       where: {
-        reviewerId: payload.userId, // Ensure this is payload.id to refer to the correct user
+        reviewerId: payload.userId, 
         eventId: payload.eventId,
         isDeleted: false,
       },
