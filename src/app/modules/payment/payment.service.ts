@@ -36,12 +36,11 @@ const createPayment = async (payload: TPayment) => {
 
   // Step 2: Create Payment inside Transaction
   const createdPayment = await prisma.$transaction(async (tx) => {
-    const existingPayment = await tx.payment.findUnique({
+    const existingPayment = await tx.payment.findFirst({
       where: {
-        userId_eventId: {
-          userId,
-          eventId,
-        },
+        userId,
+        eventId,
+        status: 'Paid',
       },
     });
 
