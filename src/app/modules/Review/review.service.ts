@@ -1,37 +1,140 @@
+/* eslint-disable no-unused-vars */
+import AppError from "../../errors/AppError";
 import prisma from "../../shared/prisma"
-import { IReview } from "./review.interface"
+import httpStatus from "http-status"
 
-const createReview = async(payload: IReview) => {
-   
-    const  reviewData = {
-        eventId: payload.eventId ,
-        reviewerId: payload.reviewerId,
-        rating: payload.rating,
-        comment: payload.comment,
-    };
+const createReview = async (payload: any, id: string) => {
+    const event = await prisma.event.findUnique({
+      where: {
+        id: payload.eventId,
+        isDeleted: false,
+      },
+    });
+  
+    if (!event) {      
+      throw new AppError(httpStatus.NOT_FOUND ,"Event not found")
+    }
+  
+    const existingReview = await prisma.review.findFirst({
+      where: {
+        reviewerId: payload.userId, // Ensure this is payload.id to refer to the correct user
+        eventId: payload.eventId,
+        isDeleted: false,
+      },
+    });
+  
+    if (existingReview) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You already reviewed this event")
+     
+    }
+  
+    const participation = await prisma.participant.findFirst({
+      where: {
+        eventId: payload.eventId,
+        userId: payload.userId, 
+        status: "APPROVED",
+      },
+    });
+  
+    if (!participation) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You didn't attend this event")      
+    }
+  
     const result = await prisma.review.create({
-        data: reviewData,
+
+        data: payload
     });
+  
     return result;
-}
+  };
+  
 
-
-const getAllReview = async() => {    
-    const result = await prisma.review.findMany();
-    return result;
-}
-
-const deleteReview = async(id: string) => {
-    const result = await prisma.review.delete({
+const getAllReview = async(filter?: { rating?: number; user?: string }) => {    
+    const result = await prisma.review.findMany({
         where: {
-            id,
-          },
-    });
-    return result;
+          isDeleted: false,
+          ...(filter?.rating && { rating: filter.rating }),
+          ...(filter?.user && { reviewerId: filter.user }),
+        },
+        include: {
+          event: true,
+          reviewer: true,
+        },
+      });
+      return result;
 }
+
+// Get current user's reviews
+const getMyReviews = async (id: string) => {
+    
+  const result = await prisma.review.findMany({
+    where: { 
+        reviewerId: id, 
+        isDeleted: false 
+    },
+    include: { 
+        event: true 
+    },
+  });
+  if (!result || result.length === 0) {
+    throw new AppError(httpStatus.NOT_FOUND, "No reviews found for this user");
+  }
+  return result;
+};
+
+const updateReview = async (reviewId: string, userId: string, payload: any) => {
+    const review = await prisma.review.findUnique(
+        { where: 
+            { 
+                id: reviewId 
+            } 
+        });
+  
+    if (!review || review.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Review not found");
+    }
+  
+    if (review.reviewerId !== userId) {
+      throw new AppError(httpStatus.FORBIDDEN, "You can only update your own review");
+    }
+  
+    const result = await prisma.review.update({
+      where: { 
+        id: reviewId 
+    },
+      data: {
+        rating: payload.rating ?? review.rating,
+        comment: payload.comment ?? review.comment,
+      },
+    });
+  
+    return result;
+  };
+  
+
+const deleteReview = async (id: string) => {
+    const review = await prisma.review.findUnique({ where: { id } });
+  
+    if (!review || review.isDeleted) {      
+      throw new AppError(httpStatus.NOT_FOUND ,"Review not found or already deleted")     
+    }
+  
+    if (review.reviewerId !== id) {
+        throw new AppError(httpStatus.NOT_FOUND ,"You can only delete your own review")       
+    }
+  
+    const result = await prisma.review.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+  
+    return result;
+  };
 
 export const ReviewServices = {
     createReview,
     getAllReview,
-    deleteReview
+    deleteReview,
+    updateReview,
+    getMyReviews
 }
