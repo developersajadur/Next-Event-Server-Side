@@ -5,18 +5,18 @@ import config from '../config';
 import AppError from '../errors/AppError';
 import { jwtHelpers } from '../helpers/jwtHelpers';
 import prisma from '../shared/prisma';
+import { IAuthenticatedUser } from '../modules/Auth/auth.interface';
 
 const auth = (...roles: string[]) => {
 
   return async (
-    req: Request & { user?: any },
+    req: Request & { user?: IAuthenticatedUser },
     res: Response,
     next: NextFunction,
   ) => {
     try {
       const token = req.headers.authorization;
-
-      //   console.log(token);
+      // console.log('Incoming token:', token);
       if (!token) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }

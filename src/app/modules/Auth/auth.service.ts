@@ -1,5 +1,4 @@
 import * as bcrypt from 'bcrypt';
-import status from 'http-status';
 import { Secret } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
@@ -129,7 +128,6 @@ const passwordChange = async (
   await prisma.user.update({
     where: {
       email: userData.email,
-      isBlocked: false,
     },
     data: {
       password: hashPassword,
@@ -188,26 +186,28 @@ const forgotPassword = async (payload: { email: string }) => {
 // reset-password
 const resetPassword = async (
   token: string,
-  payload: { id: string; password: string },
+  payload: { userId: string; newPassword: string },
 ) => {
   try {
-    await prisma.user.findUniqueOrThrow({
+    const User = await prisma.user.findUniqueOrThrow({
       where: {
-        id: payload.id,
+        id: payload.userId,
       },
     });
 
-    // Verify the reset password token
-    jwtHelpers.verifyToken(token, config.jwt.RESET_PASSWORD_SECRET as Secret);
+    if (User.isBlocked) {
+      throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+    }
 
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(payload.password, 12);
+    // Verify
+    jwtHelpers.verifyToken(token, config.jwt.RESET_PASSWORD_SECRET as Secret);
+    // hash password
+    const hashedPassword = await bcrypt.hash(payload.newPassword, 12);
 
     // Update password
     await prisma.user.update({
       where: {
-        id: payload.id,
-        isBlocked: false,
+        id: payload.userId,
       },
       data: {
         password: hashedPassword,
@@ -215,8 +215,13 @@ const resetPassword = async (
     });
 
     return { success: true, message: 'Password updated successfully' };
-  } catch {
-    throw new AppError(status.FORBIDDEN, 'Forbidden: Unable to reset password');
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Reset password error:', error);
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      'Forbidden: Unable to reset password',
+    );
   }
 };
 

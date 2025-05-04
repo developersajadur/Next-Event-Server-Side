@@ -3,8 +3,8 @@ import httpStatus from 'http-status';
 import config from '../../config';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
-import { authService } from './auth.service';
 import { IAuthenticatedUser } from './auth.interface';
+import { authService } from './auth.service';
 
 // Login user
 const loginUser = catchAsync(async (req: Request, res: Response) => {
@@ -44,7 +44,8 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 const passwordChange = catchAsync(
   async (req: Request & { user?: IAuthenticatedUser }, res: Response) => {
     const user = req.user;
-    const result = await authService.passwordChange(user, req.body);
+    const bodyData = req.body;
+    const result = await authService.passwordChange(user, bodyData);
 
     sendResponse(res, {
       success: true,
@@ -69,7 +70,7 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 
 // reset-password
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
-  const token = req.headers['authorization']?.replace('Bearer ', '') || '';
+  const token = req.headers['authorization'] || '';
 
   if (!token) {
     return sendResponse(res, {

@@ -1,5 +1,12 @@
 import { Router } from 'express';
 import { authRoutes } from '../modules/Auth/Auth.routes';
+import { eventRoutes } from '../modules/events/event.routes';
+import { inviteRoute } from '../modules/invite/invite.route';
+import { participantRoute } from '../modules/participant/participant.route';
+import { paymentRoute } from '../modules/payment/payment.route';
+import { profileRoutes } from '../modules/profile/profile.routes';
+import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
+import { userRouter } from '../modules/User/user.routes';
 import { ReviewRouter } from '../modules/Review/review.router';
 import { paymentRoute } from '../modules/payment/payment.route';
 import { participantRoute } from '../modules/participant/participant.route';
