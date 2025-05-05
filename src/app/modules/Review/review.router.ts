@@ -6,7 +6,7 @@ import Auth from "../../middlewares/Auth"
 const router = express.Router();
 
 router.get('/:id',
-     Auth('USER'), 
+    Auth('USER'), 
  ReviewController.getMyReviews)
 
 router.post('/',
@@ -14,7 +14,7 @@ router.post('/',
    
 ReviewController.createReview)
 router.get('/',
-    Auth('ADMIN'), 
+   Auth('ADMIN'), 
     ReviewController.getAllReview)
 router.patch('/:id',
     Auth('USER'), 

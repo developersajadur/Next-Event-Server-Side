@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars */
 import AppError from "../../errors/AppError";
 import prisma from "../../shared/prisma"
 import httpStatus from "http-status"
 
+// eslint-disable-next-line no-unused-vars
 const createReview = async (payload: any, id: string) => {
     const event = await prisma.event.findUnique({
       where: {
@@ -54,7 +54,14 @@ const getAllReview = async(filter?: { rating?: number; user?: string }) => {
         where: {
           isDeleted: false,
           ...(filter?.rating && { rating: filter.rating }),
-          ...(filter?.user && { reviewerId: filter.user }),
+          ...(filter?.user && {
+            reviewer: {
+              name: {
+                contains: filter.user,
+                mode: 'insensitive', 
+              },
+            },
+          }),
         },
         include: {
           event: true,
@@ -67,18 +74,16 @@ const getAllReview = async(filter?: { rating?: number; user?: string }) => {
 // Get current user's reviews
 const getMyReviews = async (id: string) => {
     
-  const result = await prisma.review.findMany({
-    where: { 
-        reviewerId: id, 
-        isDeleted: false 
-    },
+  const result = await prisma.review.findUnique({
+    where: { id},
     include: { 
-        event: true 
+      reviewer: true 
     },
   });
-  if (!result || result.length === 0) {
-    throw new AppError(httpStatus.NOT_FOUND, "No reviews found for this user");
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "No review found with this ID");
   }
+  //console.log("my Review Data..........: ", result);
   return result;
 };
 
