@@ -4,6 +4,7 @@ import CalculatePagination from "../../helpers/CalculatePagination";
 import { fileUploads } from "../../helpers/fileUploader";
 import prisma from "../../shared/prisma";
 import { eventSearchableFields } from "./event.constants";
+import { Request } from "express";
 
 
 
@@ -14,23 +15,35 @@ const createEvent = async (Request: any) => {
     const payload = Request.body
     const bannerImage: Express.Multer.File = Request.file
 
-    payload.organizerId = String(Request.user.id)
+const isUserExits = await prisma.user.findUniqueOrThrow({
+    where :{
+        email : Request.user.email
+    }
+})
+    payload.organizerId = isUserExits.id
 
 
-
+ 
     if (bannerImage) {
         const UploadToCloudinary = await fileUploads.uploadToCloudinary(bannerImage)
         payload.bannerImage = UploadToCloudinary.secure_url
+        
     }
+    
     const result = await prisma.event.create({
         data: payload
 
     })
     return result
+  
 }
 
 const updateEvent = async (Request: any) => {
-
+await prisma.event.findUniqueOrThrow({
+    where :{
+        id : Request.params.id
+    }
+})
     const payload = Request.body
     const bannerImage: Express.Multer.File = Request.file
 
@@ -44,7 +57,8 @@ const updateEvent = async (Request: any) => {
     }
     const result = await prisma.event.update({
         where: {
-            id: Request.params.id
+            id: Request.params.id,
+            isDeleted:false
         },
         data: payload
 
@@ -56,7 +70,8 @@ const updateEvent = async (Request: any) => {
 const getAllEvents = async (query: any, options: any) => {
 
 
-    const { searchTerm, minFee, maxFee, isPaid, ...filteredData } = query
+    const { searchTerm, minFee, maxFee, isPaid,isPrivate,eventStatus, ...filteredData } = query
+    
 
     const Query: Prisma.EventWhereInput[] = []
     const { page, limit, skip, sortBy, sortOrder } = CalculatePagination(options)
@@ -64,6 +79,11 @@ const getAllEvents = async (query: any, options: any) => {
     if (searchTerm) {
         Query.push({
             OR: eventSearchableFields.map(field => ({ [field]: { contains: searchTerm, mode: "insensitive" } }))
+        })
+    }
+    if(eventStatus){
+        Query.push({
+            eventStatus
         })
     }
     if (minFee && maxFee) {
@@ -78,6 +98,14 @@ const getAllEvents = async (query: any, options: any) => {
     if (typeof isPaid !== 'undefined') {
         Query.push({
             isPaid: isPaid === 'true'
+        });
+    }
+    Query.push({
+        isDeleted: false
+    })
+    if (typeof isPrivate !== 'undefined') {
+        Query.push({
+            type: isPrivate
         });
     }
     Query.push({
@@ -117,7 +145,29 @@ const getAllEvents = async (query: any, options: any) => {
 
 const getSingleEvent = async (id: string) => {
     const result = await prisma.event.findUniqueOrThrow({
-        where: {  id },
+        where: {  id,isDeleted:false },
+        include:{
+            organizer:true
+        }
+    })
+    return result
+    
+    }
+const getMyEvents = async (payload:Request & { user?: any }) => {
+    const email =payload.user.email
+
+    const isUserExits=await prisma.user.findUniqueOrThrow({
+        where :{
+            email :email
+        }
+    })
+
+    const result = await prisma.event.findMany({
+        where: { organizerId: isUserExits.id,isDeleted:false },
+        include:{
+            organizer:true
+        },
+       
     })
     return result
     
@@ -127,13 +177,14 @@ const deleteEvent = async (id: string) => {
         where: {  id },
     })
 
-    const result = await prisma.event.delete({
+    const result = await prisma.event.update({
         where: { id },
+        data: { isDeleted: true }
         
     })
     return result
     
     }
 export const eventService = {
-    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent
+    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent,getMyEvents
 };

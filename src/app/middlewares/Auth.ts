@@ -9,7 +9,7 @@ import AppError from '../errors/AppError';
 import { jwtHelpers } from '../helpers/jwtHelpers';
 
 const auth = (...roles: string[]) => {
-  // console.log(roles)
+
 
   return async (
     req: Request & { user?: any },
@@ -19,7 +19,7 @@ const auth = (...roles: string[]) => {
     try {
   const token = req.headers.authorization?.split(' ')[1]; 
 
-      //   console.log(token);
+
       if (!token) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
@@ -28,9 +28,10 @@ const auth = (...roles: string[]) => {
         token as string,
         config.jwt.ACCESS_TOKEN_SECRET as Secret,
       );
-      //   console.log(verifiedUser)
+   
 
       req.user = verifiedUser;
+     
 
       if (roles.length && !roles.includes(verifiedUser.role)) {
         throw new AppError(httpStatus.FORBIDDEN, 'Forbidden!');

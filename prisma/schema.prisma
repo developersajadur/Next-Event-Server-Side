@@ -38,10 +38,16 @@ model Event {
   slug         String        @unique
   title        String
   description  String
-  dateTime     DateTime
+  startDate     DateTime
+  availableSit  Int
+  reseveredSit  Int
+  endDate DateTime
   venue        String
   bannerImage  String?
   type         EventType
+  eventStatus  EventStatus
+  category     Category
+  inEventExist Boolean       @default(true)
   isPaid       Boolean
   fee          Decimal?
   isDeleted    Boolean       @default(false)
@@ -101,9 +107,8 @@ model Invite {
   isDeleted Boolean          @default(false)
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
-
-  event   Event @relation(fields: [eventId], references: [id])
-  invitee User  @relation("UserInvites", fields: [inviteeId], references: [id])
+  event     Event            @relation(fields: [eventId], references: [id])
+  invitee   User             @relation("UserInvites", fields: [inviteeId], references: [id])
 
   @@map("invites")
 }
@@ -129,9 +134,26 @@ enum Role {
   USER
 }
 
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  ENDED
+}
+
 enum PaymentMethod {
   COD
   Online
+}
+
+enum Category {
+  CONFERENCE
+  WORKSHOP
+  SEMINAR
+  NETWORKING
+  PARTY
+  CONCERT
+  EXHIBITION
+  OTHER
 }
 
 enum PaymentStatus {
