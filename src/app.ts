@@ -6,6 +6,13 @@ import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorhandler';
 import notFound from './app/middlewares/notFound';
 
+// import dotenv from 'dotenv';
+// import path from 'path';
+
+// // ✅ এটা প্রথম লাইনে কল করো
+// dotenv.config({ path: path.join(process.cwd(), '.env') });
+// console.log('ACCESS_TOKEN_SECRET:', process.env.ACCESS_TOKEN_SECRET);
+
 const app: Application = express();
 
 app.use(

@@ -6,9 +6,11 @@ const router = Router();
 
 // Define routes
 
-router.post(
+router.get(
     '/check-validate-payment',
     SSLController.validatePaymentService
 )
+
+router.post('/ipn', SSLController.handleIPN);
 
 export const SSLRoutes = router;

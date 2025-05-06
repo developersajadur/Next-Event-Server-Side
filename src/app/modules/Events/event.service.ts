@@ -1,10 +1,12 @@
+import { slugify } from 'slugify';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma } from "@prisma/client";
-import CalculatePagination from "../../helpers/CalculatePagination";
+
 import { fileUploads } from "../../helpers/fileUploader";
 import prisma from "../../shared/prisma";
 import { eventSearchableFields } from "./event.constants";
 import { Request } from "express";
+import calculatePagination from '../../helpers/CalculatePagination';
 
 
 
@@ -31,30 +33,49 @@ const isUserExits = await prisma.user.findUniqueOrThrow({
     }
     
     const result = await prisma.event.create({
-        data: payload
-
-    })
-    return result
+      data: payload,
+    });
   
-}
+    return result;
+  };
 
-const updateEvent = async (Request: any) => {
-await prisma.event.findUniqueOrThrow({
-    where :{
-        id : Request.params.id
+  const updateEvent = async (Request: any) => {
+    const payload = Request.body;
+    const bannerImage: Express.Multer.File = Request.file;
+    const eventId = Request.params.id;
+  
+    payload.organizerId = String(Request.user.id);
+  
+
+    if (payload.title) {
+      const baseSlug = slugify(payload.title, { lower: true, strict: true }).replace(
+        /[^\w\s-]/g,
+        ''
+      );
+      let slug = baseSlug;
+      let counter = 1;
+  
+      while (
+        await prisma.event.findFirst({
+          where: {
+            slug,
+            NOT: { id: eventId }, 
+          },
+        })
+      ) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+  
+      payload.slug = slug;
     }
-})
-    const payload = Request.body
-    const bannerImage: Express.Multer.File = Request.file
-
-    payload.organizerId = String(Request.user.id)
-
-
+  
 
     if (bannerImage) {
-        const UploadToCloudinary = await fileUploads.uploadToCloudinary(bannerImage)
-        payload.bannerImage = UploadToCloudinary.secure_url
+      const uploadResult = await fileUploads.uploadToCloudinary(bannerImage);
+      payload.bannerImage = uploadResult.secure_url;
     }
+  
     const result = await prisma.event.update({
         where: {
             id: Request.params.id,
@@ -74,7 +95,7 @@ const getAllEvents = async (query: any, options: any) => {
     
 
     const Query: Prisma.EventWhereInput[] = []
-    const { page, limit, skip, sortBy, sortOrder } = CalculatePagination(options)
+    const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options)
 
     if (searchTerm) {
         Query.push({
