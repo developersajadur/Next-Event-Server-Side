@@ -8,7 +8,9 @@ const router = express.Router();
 
 router.get('/', userController.getAllUsersFromDB);
 router.get('/:id', userController.getSingleUserFromDB);
-router.delete('/:id',auth(Role.ADMIN), userController.deleteUserFromDB);
+router.delete('/:id',
+  //auth(Role.ADMIN), 
+  userController.deleteUserFromDB);
 router.post(
   '/register',
   fileUploads.upload.single('file'),
