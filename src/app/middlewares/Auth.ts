@@ -7,7 +7,7 @@ import { jwtHelpers } from '../helpers/jwtHelpers';
 import prisma from '../shared/prisma';
 
 const auth = (...roles: string[]) => {
-  // console.log(roles)
+
 
   return async (
     req: Request & { user?: any },
@@ -17,7 +17,7 @@ const auth = (...roles: string[]) => {
     try {
       const token = req.headers.authorization;
 
-      //   console.log(token);
+
       if (!token) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
@@ -26,6 +26,9 @@ const auth = (...roles: string[]) => {
         token as string,
         config.jwt.ACCESS_TOKEN_SECRET as Secret,
       );
+<<<<<<< HEAD
+   
+=======
 
       if (verifiedUser.exp && Date.now() >= verifiedUser.exp * 1000) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'Token expired.');
@@ -42,8 +45,10 @@ const auth = (...roles: string[]) => {
       }else if(isUserExist.isDeleted){
         throw new AppError(httpStatus.FORBIDDEN, 'You are deleted!');
       }
+>>>>>>> d1c9833ab384cc0c6e8538d5ed8e4ca257fe36f4
 
       req.user = verifiedUser;
+     
 
       if (roles.length && !roles.includes(verifiedUser.role)) {
         throw new AppError(httpStatus.FORBIDDEN, 'Forbidden!');

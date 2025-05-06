@@ -4,6 +4,7 @@ import RefineQuery from '../../helpers/RefineQuery';
 import sendResponse from "../../helpers/sendResponse";
 import { eventFilterableableFields } from './event.constants';
 import { eventService } from "./event.service";
+import { Request, Response } from 'express';
 
 const createEvent = catchAsync(async (req, res) => {
 
@@ -29,8 +30,9 @@ const updateEvent = catchAsync(async (req, res) => {
 })
 
 const getAllEvents = catchAsync(async (req, res) => {
-
-    const query = RefineQuery(req.query, eventFilterableableFields)
+  
+  const query = RefineQuery(req.query, eventFilterableableFields)
+    
     const options = RefineQuery(req.query, ['limit', 'page', 'sortBy', 'sortOrder'])
 
   const result = await eventService.getAllEvents(query, options);
@@ -41,6 +43,7 @@ const getAllEvents = catchAsync(async (req, res) => {
         data: { data: result.data, meta: result.meta }
     })
 })
+
 const getSingleEvent = catchAsync(async (req, res) => {
 
     const result = await eventService.getSingleEvent(req.params.id);
@@ -48,6 +51,16 @@ const getSingleEvent = catchAsync(async (req, res) => {
         success: true,
         statusCode: httpStatus.OK,
         message: 'Event fetched successfully',
+        data: result
+    })
+})
+const getMyEvents = catchAsync(async (req:Request & { user?: any }, res:Response) => {
+
+    const result = await eventService.getMyEvents(req.user);
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Events fetched successfully',
         data: result
     })
 })
@@ -63,5 +76,5 @@ const deleteEvent = catchAsync(async (req, res) => {
 })
 
 export const EventController = {
-    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent
+    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent,getMyEvents
 }
