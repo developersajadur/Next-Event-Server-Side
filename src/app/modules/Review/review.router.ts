@@ -2,7 +2,6 @@ import express from "express"
 import { ReviewController } from "./review.controller";
 import Auth from "../../middlewares/Auth"
 
-
 const router = express.Router();
 
 router.get('/:id',
