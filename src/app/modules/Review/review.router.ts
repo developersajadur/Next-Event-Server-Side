@@ -17,7 +17,7 @@ router.get('/',
    Auth('ADMIN'), 
     ReviewController.getAllReview)
 router.patch('/:id',
-    Auth('USER'), 
+   Auth('USER'), 
     ReviewController.updateReview)
 router.delete('/:id',
     Auth('ADMIN','USER'), 

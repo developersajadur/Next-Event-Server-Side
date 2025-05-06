@@ -106,7 +106,7 @@ model Invite {
   updatedAt        DateTime         @updatedAt
 
   event   Event @relation(fields: [eventId], references: [id])
-  inviter User  @relation("SentInvites", fields: [inviteSenderId], references: [id])
+ inviter User  @relation("SentInvites", fields: [inviteSenderId], references: [id])
   invitee User  @relation("ReceivedInvites", fields: [inviteReceiverId], references: [id])
 
   @@map("invites")
