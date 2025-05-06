@@ -6,7 +6,6 @@ import AppError from '../../errors/AppError';
 import { generateOrderInvoicePDF } from '../../helpers/generatePaymentInvoicePDF';
 import { EmailHelper } from '../../helpers/emailHelper';
 import prisma from '../../shared/prisma';
-import { participantController } from '../participant/participant.controller';
 import { participantService } from '../participant/participant.service';
 
 const store_id = config.ssl.store_id as string;
@@ -112,7 +111,29 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
 
     const paymentRecord = await prisma.payment.findUnique({
       where: { transactionId: tran_id },
-      include: { user: true, event: true },
+      include: {
+        event: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            bannerImage: true,
+            fee: true,
+            isPaid: true,
+            type: true,
+            venue: true
+          }
+        },
+        user:{
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phoneNumber: true,
+            profileImage: true
+          }
+        },
+        },
     });
     if (!paymentRecord) {
       throw new AppError(status.NOT_FOUND, 'Payment record not found.');
@@ -224,7 +245,7 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
                 'en-BD',
               ),
               user: {
-                name: user.name,
+                name: user?.name,
                 email: user.email,
               },
               event: {

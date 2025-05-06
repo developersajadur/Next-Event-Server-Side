@@ -13,6 +13,10 @@ router.get('/:id',
     // Auth(Role.ADMIN,Role.USER),
  EventController.getSingleEvent)
 
+router.get('/:slug',
+    // Auth(Role.ADMIN,Role.USER),
+ EventController.getSingleEventBySlug)
+
 router.get('/my-events',Auth(Role.ADMIN,Role.USER), EventController.getMyEvents)
 
 router.patch('/:id',Auth(Role.ADMIN), EventController.deleteEvent)

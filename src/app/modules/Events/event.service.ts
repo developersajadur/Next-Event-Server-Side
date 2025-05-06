@@ -193,6 +193,15 @@ const getMyEvents = async (payload:Request & { user?: any }) => {
     return result
     
     }
+const getSingleEventBySlug = async (slug: string) => {
+    const result = await prisma.event.findUniqueOrThrow({
+        where: {  slug, isDeleted: false },
+    })
+    return result
+    
+    }
+
+
 const deleteEvent = async (id: string) => {
     await prisma.event.findUniqueOrThrow({
         where: {  id },
@@ -207,5 +216,5 @@ const deleteEvent = async (id: string) => {
     
     }
 export const eventService = {
-    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent,getMyEvents
+    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent,getMyEvents,getSingleEventBySlug
 };
