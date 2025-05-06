@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import catchAsync from "../../helpers/catchAsync"
 import { ProfileService } from "./profile.services"
 import sendResponse from "../../helpers/sendResponse"
-import httpStatus from 'http-status';
+import httpStatus, { status } from 'http-status';
 
 const getSingleProfile=catchAsync(async(req:Request,res:Response)=>{
     const result=await ProfileService.getSingleProfile(req.params.id)
@@ -25,7 +25,20 @@ const updateUserProfile = catchAsync(async (req: Request, res: Response) => {
 })
 })
 
+const getMyProfileData = catchAsync(  async (req: Request & { user?: any }, res) => {
+    const user = req.user;
+
+    const result = await ProfileService.getMyProfileData(user.id);
+
+    sendResponse(res, {
+      statusCode: status.CREATED,
+      success: true,
+      message: 'Profile updated successfully',
+      data: result,
+    });
+  },)
+
 
 export const ProfileController={
-    getSingleProfile,updateUserProfile
+    getSingleProfile,updateUserProfile,getMyProfileData
 }

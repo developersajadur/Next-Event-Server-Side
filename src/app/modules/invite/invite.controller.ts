@@ -60,10 +60,22 @@ const acceptInvite = catchAsync(async (req: Request, res: Response) => {
     });
 })
 
+const getAllInvite = catchAsync(async (req, res) => {
+  const result = await InviteService.getAllInvite();
+   
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "All Invite Fached successfully",
+    data: result,
+});
+})
+
 
 export default {
   sentInvite,
   getMyAllSendInvites,
   getMyAllReceivedInvites,
-  acceptInvite
+  acceptInvite,
+  getAllInvite
 };

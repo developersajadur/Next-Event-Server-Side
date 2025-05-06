@@ -39,6 +39,7 @@ const createOrder = catchAsync(async (req: Request & {user?: any}, res) => {
       req.query,
       paymentFilterableFields.concat('searchTerm'),
     );
+  
     const options = RefineQuery(req.query, [
       'limit',
       'page',

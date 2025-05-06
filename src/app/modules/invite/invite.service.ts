@@ -98,9 +98,28 @@ const getMyAllSendInvites = async (userId: string) => {
         isDeleted: false,
         },
         include: {
-        event: true,
-        invitee: true,
-        },
+          event: {
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              bannerImage: true,
+              fee: true,
+              isPaid: true,
+              type: true,
+              venue: true
+            }
+          },
+          invitee:{
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+              profileImage: true
+            }
+          }
+          },
     });
     
     return invites;
@@ -113,9 +132,28 @@ const getMyAllReceivedInvites = async (userId: string) => {
         isDeleted: false,
         },
         include: {
-        event: true,
-        inviter: true,
-        },
+          event: {
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              bannerImage: true,
+              fee: true,
+              isPaid: true,
+              type: true,
+              venue: true
+            }
+          },
+          inviter:{
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+              profileImage: true
+            }
+          },
+          },
     });
     
     return invites;
@@ -127,10 +165,37 @@ const acceptInvite = async (inviteId: string) => {
         const invite = await tx.invite.findUnique({
             where: { id: inviteId },
             include: {
-                event: true,
-                inviter: true,
-                invitee: true,
-            },
+              event: {
+                select: {
+                  id: true,
+                  slug: true,
+                  title: true,
+                  bannerImage: true,
+                  fee: true,
+                  isPaid: true,
+                  type: true,
+                  venue: true
+                }
+              },
+              invitee:{
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  phoneNumber: true,
+                  profileImage: true
+                }
+              },
+              inviter:{
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  phoneNumber: true,
+                  profileImage: true
+                }
+              },
+              },
         });
         if(!invite) {
             throw new AppError(status.NOT_FOUND, "Invite not found");
@@ -162,10 +227,51 @@ const acceptInvite = async (inviteId: string) => {
     return result;
 };
 
+const getAllInvite = async() => {
+  const result = prisma.invite.findMany({
+    where:{
+      isDeleted: false
+    },
+    include: {
+      event: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          bannerImage: true,
+          fee: true,
+          isPaid: true,
+          type: true,
+          venue: true
+        }
+      },
+      invitee:{
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phoneNumber: true,
+          profileImage: true
+        }
+      },
+      inviter:{
+        select: {
+          id: true,
+          email: true,
+          phoneNumber: true,
+          profileImage: true
+        }
+      },
+      },
+  })
+  return result
+}
+
 
 export const InviteService = {
   sentInvite,
   getMyAllSendInvites,
   getMyAllReceivedInvites,
-  acceptInvite
+  acceptInvite,
+  getAllInvite
 };

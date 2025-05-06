@@ -3,6 +3,7 @@ import { fileUploads } from "../../helpers/fileUploader"
 import Auth from "../../middlewares/Auth"
 import { ProfileController } from "./profile.controller"
 import { profileValidation } from "./profile.validation"
+import { Role } from "@prisma/client"
 
 const router = Router()
 
@@ -14,6 +15,8 @@ router.patch('/:id',Auth('ADMIN','USER') ,fileUploads.upload.single('file'), (re
 
     return ProfileController.updateUserProfile(req, res, next);
 })
+
+router.get('/my-profile-data', Auth(Role.ADMIN, Role.USER), ProfileController.getMyProfileData)
 
 
 export const profileRoutes = router
