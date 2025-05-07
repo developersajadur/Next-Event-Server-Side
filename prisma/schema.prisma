@@ -37,13 +37,13 @@ model User {
 
 model Event {
   id           String        @id @default(uuid())
-  slug         String        @unique
+  slug         String       @unique
   title        String
   description  String
-  startDate     DateTime
-  availableSit  Int
-  reseveredSit  Int
-  endDate DateTime
+  startDate    DateTime
+  availableSit Int
+  reseveredSit Int
+  endDate      DateTime
   venue        String
   bannerImage  String?
   type         EventType

@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { Request } from 'express';
 import AppError from '../../errors/AppError';
@@ -6,16 +5,27 @@ import { fileUploads } from '../../helpers/fileUploader';
 import prisma from '../../shared/prisma';
 import { publicUserSelectFields } from './user.interface';
 import { IFile } from '../../interfaces/file';
+import status from 'http-status';
 
 // createUserIntoDB
 const createUserIntoDB = async (req: Request) => {
+  const isUserExits = await prisma.user.findUnique({
+    where: {
+      email: req.body.email,
+    },
+  });
+
+  if (isUserExits) {
+    throw new AppError(status.CONFLICT, 'this email is already register');
+  }
+
   try {
+    let profileImage: string | undefined;
+
     if (req.file) {
-      const file = req.file as IFile
-      // console.log(file)
+      const file = req.file as IFile;
       const cloudinaryRes = await fileUploads?.uploadToCloudinary(file);
-      // console.log("Cloudinary Response:", cloudinaryRes);
-      req.body.profileImage = await cloudinaryRes.secure_url;
+      profileImage = cloudinaryRes.secure_url;
     }
 
     const hashPassword = await bcrypt.hash(req.body.password, 12);
@@ -25,26 +35,21 @@ const createUserIntoDB = async (req: Request) => {
       email: req.body.email,
       password: hashPassword,
       phoneNumber: req.body.phoneNumber,
-      profileImage: req.body.profileImage,
+      profileImage,
+      address: req.body.address || null,
+      bio: req.body.bio || null,
+      gender: req.body.gender || null,
+      occupation: req.body.occupation || null,
     };
+    // console.log(userData);
 
     const result = await prisma.user.create({
       data: userData,
     });
 
     return result;
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        const field = error.meta?.target?.[0];
-        if (field === 'email') {
-          throw new AppError(409, 'Email already exists');
-        } else if (field === 'phoneNumber') {
-          throw new AppError(409, 'Phone number already exists');
-        }
-      }
-    }
-
+  } catch (error: any) {
+    console.log(error);
     throw new AppError(500, 'Failed to create user');
   }
 };

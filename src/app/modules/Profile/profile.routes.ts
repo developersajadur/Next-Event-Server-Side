@@ -16,7 +16,7 @@ router.patch('/:id',Auth('ADMIN','USER') ,fileUploads.upload.single('file'), (re
     return ProfileController.updateUserProfile(req, res, next);
 })
 
-router.get('/my-profile-data', Auth(Role.ADMIN, Role.USER), ProfileController.getMyProfileData)
+router.get('/get/my-profile-data', Auth(Role.ADMIN, Role.USER), ProfileController.getMyProfileData)
 
 
 export const profileRoutes = router
