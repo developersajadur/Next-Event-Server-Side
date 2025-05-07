@@ -1,240 +1,236 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
-import { fileUploads } from "../../helpers/fileUploader";
-import prisma from "../../shared/prisma";
-import { eventSearchableFields } from "./event.constants";
-import { Request } from "express";
+import { fileUploads } from '../../helpers/fileUploader';
+import prisma from '../../shared/prisma';
+import { eventSearchableFields } from './event.constants';
+import { Request } from 'express';
 import calculatePagination from '../../helpers/CalculatePagination';
-import slugify from "slugify";
-
-
-
-
+import slugify from 'slugify';
 
 const createEvent = async (Request: any) => {
+  const payload = Request.body;
+  const bannerImage: Express.Multer.File = Request.file;
+  // console.log(bannerImage);
 
-    const payload = Request.body
-    const bannerImage: Express.Multer.File = Request.file
-    // console.log(bannerImage);
+  payload.organizerId = Request.user.id;
 
-    payload.organizerId = Request.user.id
+  if (bannerImage) {
+    const UploadToCloudinary =
+      await fileUploads.uploadToCloudinary(bannerImage);
+    payload.bannerImage = UploadToCloudinary.secure_url;
+  }
 
-     
-    if (bannerImage) {
-        const UploadToCloudinary = await fileUploads.uploadToCloudinary(bannerImage)
-        payload.bannerImage = UploadToCloudinary.secure_url
-        
-    }
+  if (payload.title) {
+    const baseSlug = slugify(payload.title, {
+      lower: true,
+      strict: true,
+    }).replace(/[^\w\s-]/g, '');
+    let slug = baseSlug;
+    let counter = 1;
 
-
-    if (payload.title) {
-        const baseSlug = slugify(payload.title, { lower: true, strict: true }).replace(
-          /[^\w\s-]/g,
-          ''
-        );
-        let slug = baseSlug;
-        let counter = 1;
-    
-        while (
-          await prisma.event.findUnique({
-            where: {
-              slug 
-            },
-          })
-        ) {
-          slug = `${baseSlug}-${counter}`;
-          counter++;
-        }
-    
-        payload.slug = slug;
-      }
-
-
-    // console.log(payload);
-    const result = await prisma.event.create({
-      data: payload,
-    });
-  
-    return result;
-  };
-
-  const updateEvent = async (Request: any) => {
-    const payload = Request.body;
-    const bannerImage: Express.Multer.File = Request.file;
-    const eventId = Request.params.id;
-  
-    payload.organizerId = String(Request.user.id);
-  
-
-    if (payload.title) {
-      const baseSlug = slugify(payload.title, { lower: true, strict: true }).replace(
-        /[^\w\s-]/g,
-        ''
-      );
-      let slug = baseSlug;
-      let counter = 1;
-  
-      while (
-        await prisma.event.findFirst({
-          where: {
-            slug,
-            NOT: { id: eventId }, 
-          },
-        })
-      ) {
-        slug = `${baseSlug}-${counter}`;
-        counter++;
-      }
-  
-      payload.slug = slug;
-    }
-  
-
-    if (bannerImage) {
-      const uploadResult = await fileUploads.uploadToCloudinary(bannerImage);
-      payload.bannerImage = uploadResult.secure_url;
-    }
-  
-    const result = await prisma.event.update({
+    while (
+      await prisma.event.findUnique({
         where: {
-            id: Request.params.id,
-            isDeleted:false
+          slug,
         },
-        data: payload
+      })
+    ) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
 
-    })
-    return result
-}
+    payload.slug = slug;
+  }
 
+  // console.log(payload);
+  const result = await prisma.event.create({
+    data: payload,
+  });
+
+  return result;
+};
+
+const updateEvent = async (Request: any) => {
+  const payload = Request.body;
+  const bannerImage: Express.Multer.File = Request.file;
+  const eventId = Request.params.id;
+
+  payload.organizerId = String(Request.user.id);
+
+  if (payload.title) {
+    const baseSlug = slugify(payload.title, {
+      lower: true,
+      strict: true,
+    }).replace(/[^\w\s-]/g, '');
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (
+      await prisma.event.findFirst({
+        where: {
+          slug,
+          NOT: { id: eventId },
+        },
+      })
+    ) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    payload.slug = slug;
+  }
+
+  if (bannerImage) {
+    const uploadResult = await fileUploads.uploadToCloudinary(bannerImage);
+    payload.bannerImage = uploadResult.secure_url;
+  }
+
+  const result = await prisma.event.update({
+    where: {
+      id: Request.params.id,
+      isDeleted: false,
+    },
+    data: payload,
+  });
+  return result;
+};
 
 const getAllEvents = async (query: any, options: any) => {
+  const {
+    searchTerm,
+    minFee,
+    maxFee,
+    isPaid,
+    isPrivate,
+    eventStatus,
+    ...filteredData
+  } = query;
 
+  const Query: Prisma.EventWhereInput[] = [];
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
 
-    const { searchTerm, minFee, maxFee, isPaid,isPrivate,eventStatus, ...filteredData } = query
-    
-
-    const Query: Prisma.EventWhereInput[] = []
-    const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options)
-
-    if (searchTerm) {
-        Query.push({
-            OR: eventSearchableFields.map(field => ({ [field]: { contains: searchTerm, mode: "insensitive" } }))
-        })
-    }
-    if(eventStatus){
-        Query.push({
-            eventStatus
-        })
-    }
-    if (minFee && maxFee) {
-        Query.push({
-            fee: {
-                gte: Number(minFee),
-                lte: Number(maxFee)
-            },
-
-        })
-    }
-    if (typeof isPaid !== 'undefined') {
-        Query.push({
-            isPaid: isPaid === 'true'
-        });
-    }
+  if (searchTerm) {
     Query.push({
-        isDeleted: false
-    })
-    if (typeof isPrivate !== 'undefined') {
-        Query.push({
-            type: isPrivate
-        });
-    }
+      OR: eventSearchableFields.map((field) => ({
+        [field]: { contains: searchTerm, mode: 'insensitive' },
+      })),
+    });
+  }
+  if (eventStatus) {
     Query.push({
-        isDeleted: false
-    })
+      eventStatus,
+    });
+  }
+  if (minFee && maxFee) {
+    Query.push({
+      fee: {
+        gte: Number(minFee),
+        lte: Number(maxFee),
+      },
+    });
+  }
+  if (typeof isPaid !== 'undefined') {
+    Query.push({
+      isPaid: isPaid === 'true',
+    });
+  }
+  Query.push({
+    isDeleted: false,
+  });
+  if (typeof isPrivate !== 'undefined') {
+    Query.push({
+      type: isPrivate,
+    });
+  }
+  Query.push({
+    isDeleted: false,
+  });
 
-    if (Object.keys(filteredData).length > 0)
-        Query.push({
-            AND: Object.keys(filteredData).map(key => ({
-                [key]: filteredData[key]
-            }))
-        })
+  if (Object.keys(filteredData).length > 0)
+    Query.push({
+      AND: Object.keys(filteredData).map((key) => ({
+        [key]: filteredData[key],
+      })),
+    });
 
-    const QueryCondition: Prisma.EventWhereInput = { AND: Query }
+  const QueryCondition: Prisma.EventWhereInput = { AND: Query };
 
+  const result = await prisma.event.findMany({
+    where: QueryCondition,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder as Prisma.SortOrder,
+    },
+  });
+  const total = await prisma.event.count({
+    where: QueryCondition,
+  });
 
-    const result = await prisma.event.findMany({
-        where: QueryCondition,
-        skip,
-        take: limit,
-        orderBy: {
-            [sortBy]: sortOrder as Prisma.SortOrder
-        }
-    })
-    const total = await prisma.event.count({
-        where: QueryCondition
-    })
-
-    return {
-        meta: {
-            page, limit, total
-        },
-        data: result
-    }
-
-}
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
 
 const getSingleEvent = async (id: string) => {
-    const result = await prisma.event.findUniqueOrThrow({
-        where: {  id,isDeleted:false },
-        include:{
-            organizer:true
-        }
-    })
-    return result
-    
-    }
-const getMyEvents = async (payload:Request & { user?: any }) => {
-    const email =payload.user.email
+  const result = await prisma.event.findUniqueOrThrow({
+    where: { id, isDeleted: false },
+    include: {
+      organizer: true,
+    },
+  });
+  return result;
+};
+const getMyEvents = async (payload: Request & { user?: any }) => {
+  const email = payload.user.email;
 
-    const isUserExits=await prisma.user.findUniqueOrThrow({
-        where :{
-            email :email
-        }
-    })
+  const isUserExits = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: email,
+    },
+  });
 
-    const result = await prisma.event.findMany({
-        where: { organizerId: isUserExits.id,isDeleted:false },
-        include:{
-            organizer:true
-        },
-       
-    })
-    return result
-    
-    }
+  const result = await prisma.event.findMany({
+    where: { organizerId: isUserExits.id, isDeleted: false },
+    include: {
+      organizer: true,
+    },
+  });
+  return result;
+};
 const getSingleEventBySlug = async (slug: string) => {
-    const result = await prisma.event.findUniqueOrThrow({
-        where: {  slug, isDeleted: false },
-    })
-    return result
-    
-    }
-
+  const result = await prisma.event.findUniqueOrThrow({
+    where: { slug, isDeleted: false },
+    include: {
+      organizer: true,
+    },
+  });
+  return result;
+};
 
 const deleteEvent = async (id: string) => {
-    await prisma.event.findUniqueOrThrow({
-        where: {  id },
-    })
+  await prisma.event.findUniqueOrThrow({
+    where: { id },
+  });
 
-    const result = await prisma.event.update({
-        where: { id },
-        data: { isDeleted: true }
-        
-    })
-    return result
-    
-    }
+  const result = await prisma.event.update({
+    where: { id },
+    data: { isDeleted: true },
+  });
+  return result;
+};
 export const eventService = {
-    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent,getMyEvents,getSingleEventBySlug
+  createEvent,
+  getAllEvents,
+  getSingleEvent,
+  updateEvent,
+  deleteEvent,
+  getMyEvents,
+  getSingleEventBySlug,
 };

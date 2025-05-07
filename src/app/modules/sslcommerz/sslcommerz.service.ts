@@ -37,7 +37,7 @@ const initPayment = async (paymentData: TPaymentData) => {
     total_amount,
     currency: 'BDT',
     tran_id,
-    success_url: `https://next-mart-steel.vercel.app/api/v1/ssl/check-validate-payment?tran_id=${tran_id}`,
+    success_url: `${config.ssl.success_url}?tran_id=${tran_id}`,
     fail_url: config.ssl.failed_url as string,
     cancel_url: config.ssl.cancel_url as string,
     ipn_url: config.ssl.ipn_url,
