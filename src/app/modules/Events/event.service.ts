@@ -1,4 +1,3 @@
-import { slugify } from 'slugify';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma } from "@prisma/client";
 
@@ -7,6 +6,7 @@ import prisma from "../../shared/prisma";
 import { eventSearchableFields } from "./event.constants";
 import { Request } from "express";
 import calculatePagination from '../../helpers/CalculatePagination';
+import slugify from "slugify";
 
 
 
@@ -16,22 +16,42 @@ const createEvent = async (Request: any) => {
 
     const payload = Request.body
     const bannerImage: Express.Multer.File = Request.file
+    // console.log(bannerImage);
 
-const isUserExits = await prisma.user.findUniqueOrThrow({
-    where :{
-        email : Request.user.email
-    }
-})
-    payload.organizerId = isUserExits.id
+    payload.organizerId = Request.user.id
 
-
- 
+     
     if (bannerImage) {
         const UploadToCloudinary = await fileUploads.uploadToCloudinary(bannerImage)
         payload.bannerImage = UploadToCloudinary.secure_url
         
     }
+
+
+    if (payload.title) {
+        const baseSlug = slugify(payload.title, { lower: true, strict: true }).replace(
+          /[^\w\s-]/g,
+          ''
+        );
+        let slug = baseSlug;
+        let counter = 1;
     
+        while (
+          await prisma.event.findUnique({
+            where: {
+              slug 
+            },
+          })
+        ) {
+          slug = `${baseSlug}-${counter}`;
+          counter++;
+        }
+    
+        payload.slug = slug;
+      }
+
+
+    // console.log(payload);
     const result = await prisma.event.create({
       data: payload,
     });

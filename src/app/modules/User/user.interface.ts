@@ -17,3 +17,18 @@ export type TUserPayload = {
     createdAt: true,
     updatedAt: true,
   } as const;
+
+
+
+
+
+  export interface ITokenUser {
+    name: string;
+    email: string;
+    id: string;
+    role: "USER" | "ADMIN";
+    profileImage?: string;
+    iat: number;
+    exp: number;
+  }
+  
