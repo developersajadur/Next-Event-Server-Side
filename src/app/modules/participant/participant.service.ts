@@ -21,8 +21,7 @@ const createParticipant = async (payload: any) => {
     const isExistPayment = await prisma.payment.findFirst({
       where: {
         userId: payload.userId,
-        eventId: payload.eventId,
-        status: 'Paid',
+        eventId: payload.eventId
       },
     });
     // console.log(isExistPayment);

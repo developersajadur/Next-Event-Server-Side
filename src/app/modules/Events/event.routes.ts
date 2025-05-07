@@ -13,7 +13,7 @@ router.get('/:id',
     // Auth(Role.ADMIN,Role.USER),
  EventController.getSingleEvent)
 
-router.get('/:slug',
+router.get('/slug/:slug',
     // Auth(Role.ADMIN,Role.USER),
  EventController.getSingleEventBySlug)
 
