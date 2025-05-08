@@ -10,7 +10,7 @@ import config from '../../config';
 
 // createUserIntoDB
 const createUserIntoDB = async (req: Request) => {
-  console.log(req.body)
+  // console.log("service data ", req.body)
   try {
     const {
       name,
@@ -22,7 +22,6 @@ const createUserIntoDB = async (req: Request) => {
       occupation,
       bio,
     } = req.body;
-// console.log(req.body)
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -54,7 +53,7 @@ const createUserIntoDB = async (req: Request) => {
       bio,
       profileImage,
     };
-    // console.log(userData);
+    // console.log("from service", userData);
 
     // Create new user
     const newUser = await prisma.user.create({
@@ -68,6 +67,12 @@ const createUserIntoDB = async (req: Request) => {
       email: newUser.email,
       role: newUser.role,
       profileImage: newUser.profileImage,
+      phoneNumber: newUser.phoneNumber,
+      address: newUser.address,
+      occupation: newUser.occupation,
+      bio: newUser.bio,
+      isDeleted: newUser.isDeleted,
+      isBlocked: newUser.isBlocked,
     };
 
     // Generate access and refresh tokens
