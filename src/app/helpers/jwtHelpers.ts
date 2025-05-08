@@ -18,9 +18,9 @@ const createToken = (payload: JwtPayload, secret: Secret, expiresIn: string | nu
 
 const verifyToken = async (token: string, secret: Secret) => {
   try {
-    console.log("Token secret:", secret);
+    // console.log("Token secret:", secret);
     const decoded = jwt.verify(token, secret) as JwtPayload;
-    console.log("Decoded Token:", decoded);
+    // console.log("Decoded Token:", decoded);
     return decoded;
   } catch (error) {
     console.error('JWT Error:', error); 

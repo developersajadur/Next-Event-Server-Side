@@ -2,8 +2,8 @@ import httpStatus from 'http-status';
 import catchAsync from "../../helpers/catchAsync";
 import RefineQuery from '../../helpers/RefineQuery';
 import sendResponse from "../../helpers/sendResponse";
-import { eventFilterableableFields } from './event.constants';
-import { eventService } from "./event.service";
+import { eventFilterableableFields } from '../events/event.constants';
+import { eventService } from "../events/event.service";
 import { Request, Response } from 'express';
 
 const createEvent = catchAsync(async (req, res) => {

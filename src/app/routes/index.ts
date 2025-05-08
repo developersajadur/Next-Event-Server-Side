@@ -11,8 +11,9 @@ import { ReviewRouter } from '../modules/Review/review.router';
 import { paymentRoute } from '../modules/payment/payment.route';
 import { participantRoute } from '../modules/participant/participant.route';
 import { inviteRoute } from '../modules/invite/invite.route';
-import { eventRoutes } from '../modules/Events/event.routes';
-import { profileRoutes } from '../modules/Profile/profile.routes';
+import { eventRoutes } from '../modules/events/event.routes';
+import { profileRoutes } from '../modules/profile/profile.routes';
+import { authRoutes } from '../modules/auth/auth.route';
 
 const router = Router();
 

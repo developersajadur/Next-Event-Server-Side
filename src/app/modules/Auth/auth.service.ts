@@ -4,12 +4,16 @@ import config from '../../config';
 import AppError from '../../errors/AppError';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import prisma from '../../shared/prisma';
+<<<<<<< HEAD
 import {
   IAuthenticatedUser,
   ILoginUser,
   IPasswordChangePayload,
 } from './auth.interface';
 import emailSender from './emailSender';
+=======
+import emailSender from '../auth/emailSender';
+>>>>>>> c83dc383507806bdaac5b3e940123bd1147b73f4
 
 // login user
 const loginUser = async (data: ILoginUser) => {
@@ -69,7 +73,7 @@ const refreshToken = async (token: string) => {
   let decodedData;
 
   try {
-    decodedData = jwtHelpers.verifyToken(
+    decodedData = await jwtHelpers.verifyToken(
       token,
       config.jwt.REFRESH_TOKEN_SECRET as string,
     );
