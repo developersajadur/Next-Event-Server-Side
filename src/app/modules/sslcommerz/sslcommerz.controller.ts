@@ -10,7 +10,6 @@ const validatePaymentService = catchAsync(async (req, res) => {
   const tran_id = req.query.tran_id as string;
   // console.log(tran_id);
   const result = await sslCommerzService.validatePayment(tran_id);
-  console.log(result);
 
   if (result) {
     sendResponse(res, {

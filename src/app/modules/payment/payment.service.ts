@@ -5,6 +5,9 @@ import { TPayment } from './payment.interface';
 import { generateTransactionId } from './payment.utils';
 import { sslCommerzService } from '../sslcommerz/sslcommerz.service';
 import AppError from '../../errors/AppError';
+import { IPaginationOptions } from '../../interfaces/pagination';
+import calculatePagination from '../../helpers/CalculatePagination';
+import { paymentSearchableFields } from './payment.constants';
 
 const createPayment = async (payload: TPayment) => {
   const {
@@ -103,15 +106,113 @@ const getMyPayments = async (userId: string) => {
       userId
     },
     include: {
-      event: true,
+      event: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          bannerImage: true,
+          fee: true,
+          isPaid: true,
+          type: true,
+          venue: true
+        }
+      },
     },
   });
 
   return payments;
 }
 
+ const getAllPayments = async (
+  query: Record<string, any>,
+  options: IPaginationOptions,
+) => {
+  const { searchTerm, ...filters } = query;
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
+
+  const searchConditions: Prisma.PaymentWhereInput[] = [];
+
+  if (searchTerm) {
+    for (const field of paymentSearchableFields) {
+      const [relation, nestedField] = field.split('.');
+
+      if (nestedField) {
+        searchConditions.push({
+          [relation]: {
+            [nestedField]: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+        });
+      } else {
+        searchConditions.push({
+          [field]: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        });
+      }
+    }
+  }
+
+  const filterConditions: Prisma.PaymentWhereInput[] = Object.entries(filters).map(
+    ([key, value]) => ({
+      [key]: typeof value === 'string' && (value === 'true' || value === 'false')
+        ? value === 'true'
+        : value,
+    }),
+  );
+
+  const where: Prisma.PaymentWhereInput = {
+    ...(searchConditions.length && { OR: searchConditions }),
+    ...(filterConditions.length && { AND: filterConditions }),
+  };
+
+  const result = await prisma.payment.findMany({
+    where,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy || 'createdAt']: sortOrder || 'desc',
+    },
+    include: {
+      event: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          bannerImage: true,
+          fee: true,
+          isPaid: true,
+          type: true,
+          venue: true
+        }
+      },
+      user:{
+        select: {
+          id: true,
+          email: true,
+          phoneNumber: true,
+          profileImage: true
+        }
+      },
+      },
+  });
+
+  const total = await prisma.payment.count({ where });
+
+  return {
+    meta: { page, limit, total },
+    data: result,
+  };
+};
+
+
 
 export const paymentService = {
   createPayment,
-  getMyPayments
+  getMyPayments,
+  getAllPayments
 };

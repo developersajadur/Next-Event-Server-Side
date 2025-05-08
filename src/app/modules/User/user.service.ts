@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { Request } from 'express';
 import AppError from '../../errors/AppError';
@@ -7,20 +6,23 @@ import { jwtHelpers } from '../../helpers/jwtHelpers';
 import { IFile } from '../../interfaces/file';
 import prisma from '../../shared/prisma';
 import { publicUserSelectFields } from './user.interface';
-
-// createUserIntoDB
-import { PrismaClient } from '@prisma/client';
 import config from '../../config';
 
-const prisma = new PrismaClient();
-
+// createUserIntoDB
 const createUserIntoDB = async (req: Request) => {
+  console.log(req.body)
   try {
-    const { name, email, password, phoneNumber } = req.body;
-
-    if (!name || !email || !password || !phoneNumber) {
-      throw new AppError(400, 'All required fields must be provided');
-    }
+    const {
+      name,
+      email,
+      password,
+      phoneNumber,
+      gender,
+      address,
+      occupation,
+      bio,
+    } = req.body;
+// console.log(req.body)
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -46,8 +48,13 @@ const createUserIntoDB = async (req: Request) => {
       email,
       password: hashPassword,
       phoneNumber,
+      gender,
+      address,
+      occupation,
+      bio,
       profileImage,
     };
+    // console.log(userData);
 
     // Create new user
     const newUser = await prisma.user.create({

@@ -5,7 +5,7 @@ interface JwtPayload {
   id: string
   role?: 'USER' | 'ADMIN'
   email?: string
-  profileImage?: string
+  profileImage?: string,
 
 }
 const createToken = (payload: JwtPayload, secret: Secret, expiresIn: string | number) => {
@@ -16,7 +16,7 @@ const createToken = (payload: JwtPayload, secret: Secret, expiresIn: string | nu
   return token;
 };
 
-const verifyToken = (token: string, secret: Secret) => {
+const verifyToken = async (token: string, secret: Secret) => {
   try {
     console.log("Token secret:", secret);
     const decoded = jwt.verify(token, secret) as JwtPayload;
