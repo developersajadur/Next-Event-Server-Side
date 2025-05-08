@@ -26,9 +26,6 @@ const auth = (...roles: string[]) => {
         token as string,
         config.jwt.ACCESS_TOKEN_SECRET as Secret,
       );
-<<<<<<< HEAD
-   
-=======
 
       if (verifiedUser.exp && Date.now() >= verifiedUser.exp * 1000) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'Token expired.');
@@ -45,7 +42,6 @@ const auth = (...roles: string[]) => {
       }else if(isUserExist.isDeleted){
         throw new AppError(httpStatus.FORBIDDEN, 'You are deleted!');
       }
->>>>>>> d1c9833ab384cc0c6e8538d5ed8e4ca257fe36f4
 
       req.user = verifiedUser;
      
