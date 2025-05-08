@@ -3,9 +3,9 @@ import { Request } from 'express';
 import AppError from '../../errors/AppError';
 import { fileUploads } from '../../helpers/fileUploader';
 import prisma from '../../shared/prisma';
-import { publicUserSelectFields } from './user.interface';
 import { IFile } from '../../interfaces/file';
 import status from 'http-status';
+import { publicUserSelectFields } from './user.interface';
 
 // createUserIntoDB
 const createUserIntoDB = async (req: Request) => {

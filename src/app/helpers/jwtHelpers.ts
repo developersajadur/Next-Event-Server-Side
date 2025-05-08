@@ -1,6 +1,7 @@
 import status from 'http-status';
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 import AppError from '../errors/AppError';
+import { ITokenUser } from '../modules/user/user.interface';
 
 const createToken = (payload: any, secret: Secret, expiresIn: any) => {
   const token = jwt.sign(payload, secret, {
@@ -12,7 +13,7 @@ const createToken = (payload: any, secret: Secret, expiresIn: any) => {
 
 const verifyToken = async (token: string, secret: Secret) => {
   try {
-    const decoded = await jwt.verify(token, secret) as JwtPayload;
+    const decoded = await jwt.verify(token, secret) as ITokenUser;
     return decoded;
   } catch (error: any) {
     // console.log(error);

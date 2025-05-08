@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import config from '../../config';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
-import { authService } from './auth.service';
+import { authService } from '../auth/auth.service';
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.loginUser(req.body);
