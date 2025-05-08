@@ -5,13 +5,13 @@ import Auth from "../../middlewares/Auth"
 const router = express.Router();
 
 router.get('/:id',
-    Auth('USER'), 
+    Auth('USER','ADMIN'), 
  ReviewController.getMyReviews)
 
 router.post('/',
-   Auth('USER'), 
-   
+   Auth('USER'),    
 ReviewController.createReview)
+
 router.get('/',
    Auth('ADMIN'), 
     ReviewController.getAllReview)
@@ -21,6 +21,10 @@ router.patch('/:id',
 router.delete('/:id',
     Auth('ADMIN','USER'), 
 ReviewController.deleteReview)
+
+router.get('/user/:id', 
+    ReviewController.getUserAllReviews
+);
 
 
 export const ReviewRouter = router;

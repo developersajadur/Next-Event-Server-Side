@@ -3,22 +3,23 @@ import prisma from "../../shared/prisma"
 import httpStatus from "http-status"
 
 // eslint-disable-next-line no-unused-vars
-const createReview = async (payload: any, id: string) => {
+const createReview = async (payload: any) => {
+  console.log("Payload:", payload);
+
     const event = await prisma.event.findUnique({
       where: {
-        id: payload.eventId,
-        isDeleted: false,
+        id: payload.eventId,        
       },
     });
   
-    if (!event) {      
-      throw new AppError(httpStatus.NOT_FOUND ,"Event not found")
+    if (!event || event.isDeleted) {
+      throw new AppError(httpStatus.NOT_FOUND, "Event not found");
     }
   
     const existingReview = await prisma.review.findFirst({
       where: {
         reviewerId: payload.userId, 
-        eventId: payload.eventId,
+        eventId: payload.eventId,       
         isDeleted: false,
       },
     });
@@ -27,22 +28,35 @@ const createReview = async (payload: any, id: string) => {
         throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You already reviewed this event")
      
     }
-  
+    console.log("Checking participation for:", {
+      eventId: payload.eventId,
+      userId: payload.userId,
+    })
+
     const participation = await prisma.participant.findFirst({
       where: {
         eventId: payload.eventId,
-        userId: payload.userId, 
-        status: "APPROVED",
+        userId: payload.userId,    
+  
       },
     });
-  
+   // console.log("Participation result:", participation);
+
     if (!participation) {
         throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You didn't attend this event")      
     }
   
     const result = await prisma.review.create({
-
-        data: payload
+      data: {
+        rating: payload.rating,
+        comment: payload.comment,
+        event: {
+          connect: { id: payload.eventId },
+        },
+        reviewer: {
+          connect: { id: payload.userId },
+        },
+      },
     });
   
     return result;
@@ -136,10 +150,31 @@ const deleteReview = async (id: string) => {
     return result;
   };
 
+
+  
+  const getUserAllReviews = async (id: string) => {
+    const reviews = await prisma.review.findMany({
+      where: {
+        id, 
+        isDeleted: false,
+      },
+      include: {
+        event: true, 
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  
+    return reviews;
+  };
+
+
 export const ReviewServices = {
     createReview,
     getAllReview,
     deleteReview,
     updateReview,
-    getMyReviews
+    getMyReviews,
+    getUserAllReviews
 }

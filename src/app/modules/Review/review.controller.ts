@@ -7,8 +7,9 @@ import { Request } from "express";
 
 const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
   const payload = req.body;
-  const user = req.user;
-    const result = await ReviewServices.createReview(payload, user.id);  
+  const userId = req.user.id;
+  console.log("User from token:", req.user);
+    const result = await ReviewServices.createReview({...payload, userId});  
     sendResponse(res, {
       statusCode: httpStatus.CREATED,
       success: true,
@@ -83,10 +84,26 @@ const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
     });
   });
 
+
+  const getUserAllReviews = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const result = await ReviewServices.getUserAllReviews(id);
+  
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Review Delete successfully!",
+      data: result,
+    });
+  });
+
+
+
 export const ReviewController = {
     createReview,
     getAllReview,
     deleteReview,
     updateReview,
-    getMyReviews
+    getMyReviews,
+    getUserAllReviews
 }

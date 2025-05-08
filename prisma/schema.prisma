@@ -131,6 +131,8 @@ model Review {
   event    Event @relation(fields: [eventId], references: [id])
   reviewer User  @relation(fields: [reviewerId], references: [id])
 
+  @@unique([reviewerId, eventId])
+
   @@map("reviews")
 }
 
