@@ -37,13 +37,13 @@ model User {
 
 model Event {
   id           String        @id @default(uuid())
-  slug         String        @unique
+  slug         String       @unique
   title        String
   description  String
-  startDate     DateTime
-  availableSit  Int
-  reseveredSit  Int
-  endDate DateTime
+  startDate    DateTime
+  availableSit Int
+  reseveredSit Int
+  endDate      DateTime
   venue        String
   bannerImage  String?
   type         EventType
@@ -112,7 +112,7 @@ model Invite {
   updatedAt        DateTime         @updatedAt
 
   event   Event @relation(fields: [eventId], references: [id])
-  inviter User  @relation("SentInvites", fields: [inviteSenderId], references: [id])
+ inviter User  @relation("SentInvites", fields: [inviteSenderId], references: [id])
   invitee User  @relation("ReceivedInvites", fields: [inviteReceiverId], references: [id])
 
   @@map("invites")

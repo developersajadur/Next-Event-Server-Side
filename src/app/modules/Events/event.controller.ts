@@ -7,6 +7,7 @@ import { eventService } from "./event.service";
 import { Request, Response } from 'express';
 
 const createEvent = catchAsync(async (req, res) => {
+    // console.log(req.body);
 
     const result = await eventService.createEvent(req)
     sendResponse(res, {
@@ -44,9 +45,11 @@ const getAllEvents = catchAsync(async (req, res) => {
     })
 })
 
-const getSingleEvent = catchAsync(async (req, res) => {
 
-    const result = await eventService.getSingleEvent(req.params.id);
+
+const getSingleEventBySlug = catchAsync(async (req, res) => {
+
+    const result = await eventService.getSingleEventBySlug(req.params.slug);
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
@@ -75,6 +78,8 @@ const deleteEvent = catchAsync(async (req, res) => {
     })
 })
 
+
+
 export const EventController = {
-    createEvent, getAllEvents,getSingleEvent,updateEvent,deleteEvent,getMyEvents
+    createEvent, getAllEvents,updateEvent,deleteEvent,getMyEvents,getSingleEventBySlug
 }
