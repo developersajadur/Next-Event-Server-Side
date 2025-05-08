@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import status from 'http-status';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
-import { userService } from './user.service';
+import { userService } from '../user/user.service';
 
 const createUserIntoDB = catchAsync(async (req: Request, res: Response) => {
   // console.log('Received body:', req.body);

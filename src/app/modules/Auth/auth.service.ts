@@ -5,7 +5,7 @@ import config from '../../config';
 import AppError from '../../errors/AppError';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import prisma from '../../shared/prisma';
-import emailSender from './emailSender';
+import emailSender from '../auth/emailSender';
 
 const loginUser = async (data: { email: string; password: string }) => {
   const result = await prisma.user.findUniqueOrThrow({
@@ -48,7 +48,7 @@ const refreshToken = async (token: string) => {
   let decodedData;
 
   try {
-    decodedData = jwtHelpers.verifyToken(
+    decodedData = await jwtHelpers.verifyToken(
       token,
       config.jwt.REFRESH_TOKEN_SECRET as string,
     );
@@ -58,7 +58,7 @@ const refreshToken = async (token: string) => {
 
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
-      email: decodedData.email,
+      email:  decodedData.email,
     },
   });
 

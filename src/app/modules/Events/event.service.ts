@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 
 import { fileUploads } from '../../helpers/fileUploader';
 import prisma from '../../shared/prisma';
-import { eventSearchableFields } from './event.constants';
+import { eventSearchableFields } from '../events/event.constants';
 import { Request } from 'express';
 import calculatePagination from '../../helpers/CalculatePagination';
 import slugify from 'slugify';

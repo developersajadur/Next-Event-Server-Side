@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { fileUploads } from '../../helpers/fileUploader';
-import { userController } from './user.controller';
-import { createUserZodSchema } from './user.validation';
+import { userController } from '../user/user.controller';
+import { createUserZodSchema } from '../user/user.validation';
 import auth from '../../middlewares/Auth';
 import { Role } from '@prisma/client';
 const router = express.Router();
