@@ -23,7 +23,7 @@ const verifyToken = async (token: string, secret: Secret) => {
     // console.log("Decoded Token:", decoded);
     return decoded;
   } catch (error) {
-    console.error('JWT Error:', error); 
+    // console.log('JWT Error:', error); 
     if (error.name === 'JsonWebTokenError') {
       throw new AppError(status.FORBIDDEN, 'Invalid token signature bro');
     } else if (error.name === 'TokenExpiredError') {
