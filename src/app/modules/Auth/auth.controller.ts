@@ -12,7 +12,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken } = result;
 
   res.cookie('refreshToken', refreshToken, {
-    secure: config.node_env === 'production',
+    secure: config.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24 * 365,
@@ -99,12 +99,8 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-//
-
 
 // log out
-import { Request, Response } from "express";
-
  const logOut = async (req: Request, res: Response) => {
   res
     .clearCookie("accessToken", {

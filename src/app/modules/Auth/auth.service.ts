@@ -183,6 +183,9 @@ const forgotPassword = async (payload: { email: string }) => {
   
     `,
   );
+  return {
+    message: 'A password reset link has been sent to your email.',
+  };
 };
 
 // reset-password
@@ -198,11 +201,19 @@ const resetPassword = async (
     });
 
     if (User.isBlocked) {
-      throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+      throw new AppError(403, 'User is blocked');
     }
 
     // Verify
-    jwtHelpers.verifyToken(token, config.jwt.RESET_PASSWORD_SECRET as Secret);
+     const decoded =  jwtHelpers.verifyToken(token, config.jwt.RESET_PASSWORD_SECRET as Secret) as {
+      email: string;
+      [key: string]: string;
+    };
+
+    
+    if (decoded.email !== user.email) {
+      throw new AppError(403, 'Invalid reset token');
+    }
     // hash password
     const hashedPassword = await bcrypt.hash(payload.newPassword, 12);
 
@@ -221,10 +232,11 @@ const resetPassword = async (
     // eslint-disable-next-line no-console
     console.error('Reset password error:', error);
     throw new AppError(
-      httpStatus.FORBIDDEN,
+     403,
       'Forbidden: Unable to reset password',
     );
   }
+
 };
 
 export const authService = {

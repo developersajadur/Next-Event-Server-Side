@@ -1,14 +1,14 @@
 import status from 'http-status';
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import AppError from '../errors/AppError';
-interface JwtPayload {
+interface CustomJwtPayload {
   id: string
   role?: 'USER' | 'ADMIN'
   email?: string
   profileImage?: string,
 
 }
-const createToken = (payload: JwtPayload, secret: Secret, expiresIn: string | number) => {
+const createToken = (payload: CustomJwtPayload, secret: Secret, expiresIn: string | number) => {
   const token = jwt.sign(payload, secret, {
     algorithm: 'HS256',
     expiresIn,
@@ -18,9 +18,7 @@ const createToken = (payload: JwtPayload, secret: Secret, expiresIn: string | nu
 
 const verifyToken = async (token: string, secret: Secret) => {
   try {
-    // console.log("Token secret:", secret);
-    const decoded = jwt.verify(token, secret) as JwtPayload;
-    // console.log("Decoded Token:", decoded);
+    const decoded = jwt.verify(token, secret) as CustomJwtPayload;
     return decoded;
   } catch (error) {
     // console.log('JWT Error:', error); 
