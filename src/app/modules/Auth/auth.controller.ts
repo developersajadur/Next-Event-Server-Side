@@ -99,10 +99,29 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
+//
+
+
+// log out
+import { Request, Response } from "express";
+
+ const logOut = async (req: Request, res: Response) => {
+  res
+    .clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    })
+    .status(200)
+    .json({ success: true, message: "Logged out successfully" });
+};
+
+
 export const authControlller = {
   loginUser,
   refreshToken,
   passwordChange,
   forgotPassword,
   resetPassword,
+  logOut
 };

@@ -3,41 +3,83 @@ import bcrypt from 'bcrypt';
 import { Request } from 'express';
 import AppError from '../../errors/AppError';
 import { fileUploads } from '../../helpers/fileUploader';
+import { jwtHelpers } from '../../helpers/jwtHelpers';
 import { IFile } from '../../interfaces/file';
 import prisma from '../../shared/prisma';
 import { publicUserSelectFields } from './user.interface';
 
 // createUserIntoDB
+import { PrismaClient } from '@prisma/client';
+import config from '../../config';
+
+const prisma = new PrismaClient();
+
 const createUserIntoDB = async (req: Request) => {
   try {
     const { name, email, password, phoneNumber } = req.body;
+
     if (!name || !email || !password || !phoneNumber) {
       throw new AppError(400, 'All required fields must be provided');
     }
 
-    let profileImage: string | undefined;
+    // Check if email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
+    if (existingUser) {
+      throw new AppError(409, 'Email already exists');
+    }
+
+    let profileImage: string | undefined;
     if (req.file) {
       const file = req.file as IFile;
       const cloudinaryRes = await fileUploads?.uploadToCloudinary(file);
       profileImage = await cloudinaryRes.secure_url;
     }
 
-    const hashPassword = await bcrypt.hash(req.body.password, 12);
+    // Hash password
+    const hashPassword = await bcrypt.hash(password, 12);
 
     const userData = {
       name,
       email,
       password: hashPassword,
       phoneNumber,
-      profileImage: profileImage,
+      profileImage,
     };
 
-    const result = await prisma.user.create({
+    // Create new user
+    const newUser = await prisma.user.create({
       data: userData,
     });
 
-    return result;
+    // token payload
+    const tokenPayload = {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      profileImage: newUser.profileImage,
+    };
+
+    // Generate access and refresh tokens
+    const accessToken = jwtHelpers.createToken(
+      tokenPayload,
+      config.jwt.ACCESS_TOKEN_SECRET as string,
+      config.jwt.ACCESS_TOKEN_EXPIRES_IN as string,
+    );
+    const refreshToken = jwtHelpers.createToken(
+      tokenPayload,
+      config.jwt.REFRESH_TOKEN_SECRET as string,
+      config.jwt.REFRESH_TOKEN_EXPIRES_IN as string,
+    );
+
+    return {
+      user: newUser,
+      accessToken,
+      refreshToken,
+    };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
@@ -50,7 +92,7 @@ const createUserIntoDB = async (req: Request) => {
       }
     }
 
-    throw new AppError(500, 'Failed to create user');
+    throw new AppError(500, 'Failed to create or login user');
   }
 };
 
@@ -97,4 +139,3 @@ export const userService = {
   getAllUsersFromDB,
   deleteUserFromDB,
 };
-

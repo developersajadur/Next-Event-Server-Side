@@ -1,5 +1,5 @@
 import { z } from 'zod';
-
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 export const createUserZodSchema = z.object({
   name: z.string({ required_error: 'Name is required' }),
   email: z
@@ -8,7 +8,14 @@ export const createUserZodSchema = z.object({
   password: z
     .string({ required_error: 'Password is required' })
     .min(6, 'Password must be at least 6 characters long'),
-  phoneNumber: z.string({ required_error: 'Phone number is required' }),
-  // .regex(/^\+8801[3-9]\d{8}$/, 'Invalid Bangladeshi phone number format'),
+  phoneNumber: z.string({ required_error: 'Phone number is required' }).refine(
+    (value) => {
+      const phoneNumber = parsePhoneNumberFromString(value, 'BD');
+      return phoneNumber?.isValid() ?? false;
+    },
+    {
+      message: 'Invalid phone number format',
+    },
+  ),
   profileImage: z.string().optional(),
 });

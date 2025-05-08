@@ -18,9 +18,12 @@ const createToken = (payload: JwtPayload, secret: Secret, expiresIn: string | nu
 
 const verifyToken = (token: string, secret: Secret) => {
   try {
+    console.log("Token secret:", secret);
     const decoded = jwt.verify(token, secret) as JwtPayload;
+    console.log("Decoded Token:", decoded);
     return decoded;
   } catch (error) {
+    console.error('JWT Error:', error); 
     if (error.name === 'JsonWebTokenError') {
       throw new AppError(status.FORBIDDEN, 'Invalid token signature bro');
     } else if (error.name === 'TokenExpiredError') {
