@@ -3,8 +3,10 @@ import httpStatus from 'http-status';
 import config from '../../config';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
+import { IAuthenticatedUser } from './auth.interface';
 import { authService } from './auth.service';
 
+// Login user
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.loginUser(req.body);
   const { refreshToken } = result;
@@ -38,11 +40,12 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 });
 
 // password change
+
 const passwordChange = catchAsync(
-  async (req: Request & { user?: any }, res: Response) => {
+  async (req: Request & { user?: IAuthenticatedUser }, res: Response) => {
     const user = req.user;
-    // console.log(user)
-    const result = await authService.passwordChange(user, req.body);
+    const bodyData = req.body;
+    const result = await authService.passwordChange(user, bodyData);
 
     sendResponse(res, {
       success: true,
@@ -67,7 +70,7 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 
 // reset-password
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
-  const token = req.headers['authorization']?.replace('Bearer ', '') || '';
+  const token = req.headers['authorization'] || '';
 
   if (!token) {
     return sendResponse(res, {
@@ -86,7 +89,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
       message: 'Password reset successfully!',
       data: null,
     });
-  } catch (error: any) {
+  } catch (error) {
     sendResponse(res, {
       success: false,
       statusCode: httpStatus.INTERNAL_SERVER_ERROR,
@@ -96,10 +99,29 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
+//
+
+
+// log out
+import { Request, Response } from "express";
+
+ const logOut = async (req: Request, res: Response) => {
+  res
+    .clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    })
+    .status(200)
+    .json({ success: true, message: "Logged out successfully" });
+};
+
+
 export const authControlller = {
   loginUser,
   refreshToken,
   passwordChange,
   forgotPassword,
   resetPassword,
+  logOut
 };

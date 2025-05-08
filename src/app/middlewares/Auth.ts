@@ -23,7 +23,6 @@ const auth = (...roles: string[]) => {
   ) => {
     try {
       const token = req.headers.authorization;
-
       if (!token) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }

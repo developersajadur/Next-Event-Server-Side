@@ -1,8 +1,14 @@
 import status from 'http-status';
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 import AppError from '../errors/AppError';
+interface JwtPayload {
+  id: string
+  role?: 'USER' | 'ADMIN'
+  email?: string
+  profileImage?: string,
 
-const createToken = (payload: any, secret: Secret, expiresIn: any) => {
+}
+const createToken = (payload: JwtPayload, secret: Secret, expiresIn: string | number) => {
   const token = jwt.sign(payload, secret, {
     algorithm: 'HS256',
     expiresIn,
@@ -12,10 +18,12 @@ const createToken = (payload: any, secret: Secret, expiresIn: any) => {
 
 const verifyToken = async (token: string, secret: Secret) => {
   try {
-    const decoded = await jwt.verify(token, secret) as JwtPayload;
+    // console.log("Token secret:", secret);
+    const decoded = jwt.verify(token, secret) as JwtPayload;
+    // console.log("Decoded Token:", decoded);
     return decoded;
-  } catch (error: any) {
-    // console.log(error);
+  } catch (error) {
+    // console.log('JWT Error:', error); 
     if (error.name === 'JsonWebTokenError') {
       throw new AppError(status.FORBIDDEN, 'Invalid token signature bro');
     } else if (error.name === 'TokenExpiredError') {

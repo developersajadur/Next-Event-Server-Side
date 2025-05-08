@@ -50,10 +50,9 @@ const sendEmail = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent:', info.messageId);
+    // console.log('Email sent:', info.messageId);
     return info;
-  } catch (error) {
-    console.error('❌ Error sending email:', error);
+  } catch {
     throw new Error('Failed to send email');
   }
 };
@@ -67,8 +66,7 @@ const createEmailContent = async (
     const content = await fs.readFile(templatePath, 'utf8');
     const compiled = handlebars.compile(content);
     return compiled(data);
-  } catch (error) {
-    console.error('❌ Error creating email content:', error);
+  } catch {
     throw new AppError(status.FORBIDDEN, 'Failed to create email content');
   }
 };
