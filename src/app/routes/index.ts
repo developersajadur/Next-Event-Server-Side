@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { authRoutes } from '../modules/Auth/Auth.routes';
 import { eventRoutes } from '../modules/events/event.routes';
 import { inviteRoute } from '../modules/invite/invite.route';
 import { participantRoute } from '../modules/participant/participant.route';
@@ -13,8 +12,7 @@ import { participantRoute } from '../modules/participant/participant.route';
 import { inviteRoute } from '../modules/invite/invite.route';
 import { eventRoutes } from '../modules/events/event.routes';
 import { profileRoutes } from '../modules/profile/profile.routes';
-import { authRoutes } from '../modules/auth/auth.route';
-
+import { authRoutes } from '../modules/Auth/auth.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -24,7 +22,7 @@ const moduleRoutes = [
   },
   {
     path: '/auth',
-    route: authRoutes,
+    route:authRoutes,
   },
   {
     path: '/review',
