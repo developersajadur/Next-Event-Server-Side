@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import catchAsync from "../../helpers/catchAsync"
-import { ProfileService } from "../profile/profile.services"
+import { ProfileService } from "./profile.services"
 import sendResponse from "../../helpers/sendResponse"
 import httpStatus, { status } from 'http-status';
 import { ITokenUser } from "../user/user.interface";

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { fileUploads } from "../../helpers/fileUploader";
-import { EventController } from "../events/event.controller";
-import { creatEventValidation, updateEventValidation } from "../events/event.validation";
+import { EventController } from "./event.controller";
+import { creatEventValidation, updateEventValidation } from "./event.validation";
 import Auth from "../../middlewares/Auth";
 import { Role } from "@prisma/client";
 
