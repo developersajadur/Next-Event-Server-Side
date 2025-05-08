@@ -9,37 +9,49 @@ datasource db {
 }
 
 model User {
-  id             String        @id @default(uuid())
-  name           String
-  email          String        @unique
-  password       String
-  phoneNumber    String        @unique
-  profileImage   String?
-  role           Role          @default(USER)
-  isDeleted      Boolean       @default(false)
-  isBlocked      Boolean       @default(false)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  events         Event[]       @relation("UserEvents")
-  payments       Payment[]
-  participants Participant[]
-  invites        Invite[]      @relation("UserInvites")
-  reviews        Review[]
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  address      String?
+  bio          String?
+  gender       String?
+  occupation   String?
+  phoneNumber  String   @unique
+  profileImage String?
+  role         Role     @default(USER)
+  isDeleted    Boolean  @default(false)
+  isBlocked    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  events          Event[]       @relation("UserEvents")
+  payments        Payment[]
+  participants    Participant[]
+  sentInvites     Invite[]      @relation("SentInvites") // inviter
+  receivedInvites Invite[]      @relation("ReceivedInvites") // invitee
+  reviews         Review[]
 
   @@map("users")
 }
 
 model Event {
   id           String        @id @default(uuid())
-  slug         String        @unique
+  slug         String       @unique
   title        String
   description  String
-  dateTime     DateTime
+  startDate    DateTime
+  availableSit Int
+  reseveredSit Int
+  endDate      DateTime
   venue        String
   bannerImage  String?
   type         EventType
+  eventStatus  EventStatus
+  category     Category
+  inEventExist Boolean       @default(true)
   isPaid       Boolean
-  fee          Decimal?
+  fee          Decimal
   isDeleted    Boolean       @default(false)
   organizer    User          @relation("UserEvents", fields: [organizerId], references: [id])
   organizerId  String
@@ -61,8 +73,8 @@ model Payment {
   event           Event         @relation(fields: [eventId], references: [id])
   amount          Decimal
   method          PaymentMethod
-  status          PaymentStatus
-  transactionId   String?  @unique
+  status          PaymentStatus @default(Pending)
+  transactionId   String?       @unique
   gatewayResponse Json?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -77,29 +89,31 @@ model Participant {
   eventId   String
   status    ParticipationStatus @default(PENDING)
   hasPaid   Boolean             @default(false)
-  isDeleted Boolean             @default(false)
   joinedAt  DateTime?
+  isDeleted Boolean             @default(false)
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
 
+  @@unique([userId, eventId])
   @@map("participants")
 }
 
 model Invite {
-  id        String           @id @default(uuid())
-  eventId   String
-  inviteeId String
-  hasPaid   Boolean          @default(false)
-  status    InvitationStatus @default(PENDING)
-  isDeleted Boolean          @default(false)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  inviteReceiverId String
+  inviteSenderId   String
+  eventId          String
+  status           InvitationStatus @default(PENDING)
+  isDeleted        Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   event   Event @relation(fields: [eventId], references: [id])
-  invitee User  @relation("UserInvites", fields: [inviteeId], references: [id])
+ inviter User  @relation("SentInvites", fields: [inviteSenderId], references: [id])
+  invitee User  @relation("ReceivedInvites", fields: [inviteReceiverId], references: [id])
 
   @@map("invites")
 }
@@ -125,9 +139,26 @@ enum Role {
   USER
 }
 
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  ENDED
+}
+
 enum PaymentMethod {
   COD
   Online
+}
+
+enum Category {
+  CONFERENCE
+  WORKSHOP
+  SEMINAR
+  NETWORKING
+  PARTY
+  CONCERT
+  EXHIBITION
+  OTHER
 }
 
 enum PaymentStatus {

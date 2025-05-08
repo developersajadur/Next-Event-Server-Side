@@ -1,6 +1,8 @@
 import { Server } from 'http';
 import app from './app';
 import config from './app/config';
+// import dotenv from 'dotenv';
+// dotenv.config(); 
 
 const port = config.port || 5000;
 

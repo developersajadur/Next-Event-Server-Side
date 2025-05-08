@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import status from 'http-status';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
-import { userService } from './user.service';
+import { userService } from '../user/user.service';
 
 const createUserIntoDB = catchAsync(async (req: Request, res: Response) => {
   // console.log('Received body:', req.body);
@@ -28,6 +28,19 @@ const getAllUsersFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// getSingleUserFromDB
+const getSingleUserFromDB = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const result = await userService.getSingleUserFromDB(id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'users fetched successfully',
+    data: result,
+  });
+});
+
 // delete user
 const deleteUserFromDB = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
@@ -44,5 +57,6 @@ const deleteUserFromDB = catchAsync(async (req: Request, res: Response) => {
 export const userController = {
   createUserIntoDB,
   getAllUsersFromDB,
+  getSingleUserFromDB,
   deleteUserFromDB,
 };
