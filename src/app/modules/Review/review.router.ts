@@ -1,5 +1,5 @@
 import express from "express"
-import { ReviewController } from "../Review/review.controller";
+import { ReviewController } from "../review/review.controller";
 import Auth from "../../middlewares/Auth"
 
 const router = express.Router();
