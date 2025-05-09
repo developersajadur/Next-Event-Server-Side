@@ -53,7 +53,6 @@ const verifyToken = (token: string, secret: Secret): CustomPayload => {
   } catch (error) {
     const err = error as Error;
     console.error('Token verification error:', err);
-  
     if (err.name === 'JsonWebTokenError') {
       throw new AppError(status.FORBIDDEN, 'Invalid token signature');
     } else if (err.name === 'TokenExpiredError') {
