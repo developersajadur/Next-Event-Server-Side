@@ -1,22 +1,15 @@
-import { NextFunction, Request, Response, Router } from "express"
-import { fileUploads } from "../../helpers/fileUploader"
-import Auth from "../../middlewares/Auth"
-import { ProfileController } from "./profile.controller"
-import { profileValidation } from "./profile.validation"
 import { Role } from "@prisma/client"
+import auth from "../../middlewares/Auth"
+import { Router } from "express"
+import { ProfileController } from "../Profile/profile.controller"
 
 const router = Router()
 
-router.get('/:id', Auth('ADMIN','USER'),ProfileController.getSingleProfile)
+router.get('/:id', auth('ADMIN','USER'),ProfileController.getSingleProfile)
 
-router.patch('/:id',Auth('ADMIN','USER') ,fileUploads.upload.single('file'), (req: Request, res: Response, next: NextFunction) => {
-    const parsedData = JSON.parse(req.body.data)
-    req.body = profileValidation.parse(parsedData);
+router.patch("/:userId", auth(Role.USER), ProfileController.updateUserProfile)
 
-    return ProfileController.updateUserProfile(req, res, next);
-})
-
-router.get('/get/my-profile-data', Auth(Role.ADMIN, Role.USER), ProfileController.getMyProfileData)
+router.get('/get/my-profile-data', auth(Role.ADMIN, Role.USER), ProfileController.getMyProfileData)
 
 
 export const profileRoutes = router

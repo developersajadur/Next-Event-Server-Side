@@ -18,3 +18,15 @@ export const profileValidation = z.object({
   isDeleted: z.boolean().optional(),
   isBlocked: z.boolean().optional(),
 });
+
+
+// Zod update Validation Schema
+export const UpdateProfileValidation = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email format"),
+  profileImage: z.string().url("Invalid URL for profile image"),
+  phoneNumber: z.string().min(10, "Phone number should be at least 10 characters"),
+  address: z.string().min(1, "Address is required"),
+  occupation: z.string().min(1, "Occupation is required"),
+});
+
