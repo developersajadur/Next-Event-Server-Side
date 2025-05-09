@@ -1,5 +1,5 @@
 import status from 'http-status';
-import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken'; 
 import AppError from '../errors/AppError';
 
 interface CustomPayload {
