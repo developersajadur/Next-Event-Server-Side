@@ -17,9 +17,7 @@ export type TJwtPayload = {
 };
 
 export const tokenDecoder = (req: Request) => {
-  // console.log(req);
   const token = req.cookies?.refreshToken;
-  // console.log(token);
   if (!token) {
     throw new AppError(status.UNAUTHORIZED, 'You Are Not Authorized');
   }
