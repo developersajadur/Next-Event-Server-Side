@@ -9,15 +9,10 @@ const router = Router();
 
 router.get('/', EventController.getAllEvents);
 
-router.get(
-  '/:id',
-  // Auth(Role.ADMIN,Role.USER),
-  EventController.getSingleEvent,
-);
 
 router.get(
   '/slug/:slug',
-  // Auth(Role.ADMIN,Role.USER),
+  Auth(Role.ADMIN,Role.USER),
   EventController.getSingleEventBySlug,
 );
 
