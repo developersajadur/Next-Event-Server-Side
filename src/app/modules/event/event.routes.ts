@@ -1,12 +1,9 @@
-import { Role } from '@prisma/client';
-import { NextFunction, Request, Response, Router } from 'express';
-import { fileUploads } from '../../helpers/fileUploader';
-import Auth from '../../middlewares/Auth';
-import { EventController } from '../Events/event.controller';
-import {
-  creatEventValidation,
-  updateEventValidation,
-} from '../Events/event.validation';
+import { NextFunction, Request, Response, Router } from "express";
+import { fileUploads } from "../../helpers/fileUploader";
+import { EventController } from "./event.controller";
+import { creatEventValidation, updateEventValidation } from "./event.validation";
+import Auth from "../../middlewares/Auth";
+import { Role } from "@prisma/client";
 
 const router = Router();
 

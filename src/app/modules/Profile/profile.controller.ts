@@ -1,10 +1,10 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express"
+import catchAsync from "../../helpers/catchAsync"
+import { ProfileService } from "./profile.services"
+import sendResponse from "../../helpers/sendResponse"
 import httpStatus, { status } from 'http-status';
-import AppError from '../../errors/AppError';
-import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../helpers/sendResponse';
-import { ProfileService } from '../Profile/profile.services';
-import { ITokenUser } from '../User/user.interface';
+import { ITokenUser } from "../user/user.interface";
+import AppError from "../../errors/AppError";
 
 const getSingleProfile = catchAsync(async (req: Request, res: Response) => {
   const result = await ProfileService.getSingleProfile(req.params.id);
