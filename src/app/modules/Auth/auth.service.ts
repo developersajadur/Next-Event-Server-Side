@@ -36,17 +36,17 @@ const loginUser = async (data: ILoginUser) => {
 
   // token payload
   const tokenPayload = {
+    id: userData.id,
     name: userData.name,
     email: userData.email,
     role: userData.role,
     profileImage: userData.profileImage,
-    id: userData.id,
   };
 
   // access token
   const accessToken = jwtHelpers.createToken(
     tokenPayload,
-    config.jwt.ACCESS_TOKEN_SECRET as string,
+    config.jwt.ACCESS_TOKEN_SECRET,
     config.jwt.ACCESS_TOKEN_EXPIRES_IN as string,
   );
 
@@ -63,7 +63,7 @@ const loginUser = async (data: ILoginUser) => {
   };
 };
 
-// refresh 
+// refresh
 
 const refreshToken = async (token: string) => {
   let decodedData;
@@ -151,7 +151,7 @@ const forgotPassword = async (payload: { email: string }) => {
 
   // token generate
   const resetPassToken = jwtHelpers.createToken(
-    { email: userData.email, role: userData.role },
+    { email: userData.email, role: userData.role, id: userData.id },
     config.jwt.RESET_PASSWORD_SECRET as Secret,
     config.jwt.RESET_PASSWORD_TOKEN_EXP_IN as string,
   );
@@ -205,13 +205,12 @@ const resetPassword = async (
     }
 
     // Verify
-     const decoded =  jwtHelpers.verifyToken(token, config.jwt.RESET_PASSWORD_SECRET as Secret) as {
-      email: string;
-      [key: string]: string;
-    };
+    const decoded = jwtHelpers.verifyToken(
+      token,
+      config.jwt.RESET_PASSWORD_SECRET as Secret,
+    );
 
-    
-    if (decoded.email !== user.email) {
+    if (decoded.email !== User.email) {
       throw new AppError(403, 'Invalid reset token');
     }
     // hash password
@@ -231,12 +230,8 @@ const resetPassword = async (
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Reset password error:', error);
-    throw new AppError(
-     403,
-      'Forbidden: Unable to reset password',
-    );
+    throw new AppError(403, 'Forbidden: Unable to reset password');
   }
-
 };
 
 export const authService = {

@@ -14,9 +14,10 @@ export type TUserPayload = {
     profileImage: true,
     role: true,
     isDeleted: true,
+    isBlocked: true,
     createdAt: true,
     updatedAt: true,
-  } as const;
+  } ;
 
 
 

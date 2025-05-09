@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express"
 import { fileUploads } from "../../helpers/fileUploader"
 import Auth from "../../middlewares/Auth"
-import { ProfileController } from "../profile/profile.controller"
-import { profileValidation } from "../profile/profile.validation"
+import { ProfileController } from "../Profile/profile.controller"
+import { profileValidation } from "../Profile/profile.validation"
 import { Role } from "@prisma/client"
 
 const router = Router()
