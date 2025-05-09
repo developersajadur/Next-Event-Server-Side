@@ -1,7 +1,7 @@
 import catchAsync from "../../helpers/catchAsync";
 import sendResponse from "../../helpers/sendResponse";
 import httpStatus from "http-status";
-import { ReviewServices } from "./review.service";
+import { ReviewServices } from "../review/review.service";
 import { Request } from "express";
 
 

@@ -1,7 +1,7 @@
 import status from 'http-status';
 import AppError from '../../errors/AppError';
 import prisma from '../../shared/prisma';
-import { UpdateProfilePayload } from './profile.interface';
+import { UpdateProfilePayload } from '../profile/profile.interface';
 
 const getSingleProfile = async (id: string) => {
   const result = await prisma.user.findUniqueOrThrow({ where: { id } });
