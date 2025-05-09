@@ -1,26 +1,64 @@
 import status from 'http-status';
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import AppError from '../errors/AppError';
 
-const createToken = (payload: any, secret: Secret, expiresIn: any) => {
-  const token = jwt.sign(payload, secret, {
+interface CustomPayload {
+  id: string;
+  name?: string;
+  role?: 'USER' | 'ADMIN';
+  email?: string;
+  profileImage?: string | null;
+}
+
+const createToken = (
+  payload: CustomPayload,
+  secret: Secret,
+  expiresIn: string | number | undefined,
+): string => {
+  if (!secret || typeof secret !== 'string') {
+    throw new AppError(
+      status.INTERNAL_SERVER_ERROR,
+      'JWT Secret is missing or invalid',
+    );
+  }
+
+  if (
+    !expiresIn ||
+    (typeof expiresIn !== 'string' && typeof expiresIn !== 'number')
+  ) {
+    throw new AppError(status.INTERNAL_SERVER_ERROR, 'JWT Expiry is invalid');
+  }
+
+  const signOptions: SignOptions = {
+    expiresIn: expiresIn as SignOptions['expiresIn'],
     algorithm: 'HS256',
-    expiresIn,
-  });
-  return token;
+  };
+
+  try {
+    return jwt.sign(payload, secret, signOptions);
+  } catch (error) {
+    console.error('Error creating token:', error);
+    throw new AppError(status.INTERNAL_SERVER_ERROR, 'Failed to create JWT');
+  }
 };
 
-const verifyToken = async (token: string, secret: Secret) => {
+// Verify token
+const verifyToken = (token: string, secret: Secret): CustomPayload => {
   try {
-    const decoded = await jwt.verify(token, secret) as JwtPayload;
+    const decoded = jwt.verify(token, secret) as CustomPayload;
+    if (!decoded.id) {
+      throw new AppError(status.FORBIDDEN, 'Token missing essential fields');
+    }
     return decoded;
-  } catch (error: any) {
-    // console.log(error);
-    if (error.name === 'JsonWebTokenError') {
-      throw new AppError(status.FORBIDDEN, 'Invalid token signature bro');
-    } else if (error.name === 'TokenExpiredError') {
+  } catch (error) {
+    const err = error as Error;
+    console.error('Token verification error:', err);
+    if (err.name === 'JsonWebTokenError') {
+      throw new AppError(status.FORBIDDEN, 'Invalid token signature');
+    } else if (err.name === 'TokenExpiredError') {
       throw new AppError(status.FORBIDDEN, 'Token expired');
     }
+  
     throw new AppError(status.FORBIDDEN, 'Forbidden');
   }
 };

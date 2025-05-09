@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Secret } from 'jsonwebtoken';
@@ -5,14 +6,13 @@ import config from '../config';
 import AppError from '../errors/AppError';
 import { jwtHelpers } from '../helpers/jwtHelpers';
 import prisma from '../shared/prisma';
-import { Role } from '@prisma/client';
 
 export interface ITokenUser {
   email: string;
   role: Role;
   id: string;
   iat?: number;
-  exp?: number; 
+  exp?: number;
 }
 
 const auth = (...roles: string[]) => {
@@ -23,15 +23,14 @@ const auth = (...roles: string[]) => {
   ) => {
     try {
       const token = req.headers.authorization;
-
       if (!token) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
 
-      const verifiedUser = await jwtHelpers.verifyToken(
+      const verifiedUser = (await jwtHelpers.verifyToken(
         token as string,
-        config.jwt.ACCESS_TOKEN_SECRET as Secret
-      ) as ITokenUser;
+        config.jwt.ACCESS_TOKEN_SECRET as Secret,
+      )) as ITokenUser;
 
       if (verifiedUser.exp && Date.now() >= verifiedUser.exp * 1000) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'Token expired.');
@@ -41,7 +40,7 @@ const auth = (...roles: string[]) => {
         where: { id: verifiedUser.id },
       });
 
-      if(!isUserExist){
+      if (!isUserExist) {
         throw new AppError(httpStatus.FORBIDDEN, 'User Not Found');
       }
 
