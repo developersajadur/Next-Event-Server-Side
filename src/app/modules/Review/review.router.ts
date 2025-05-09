@@ -26,5 +26,6 @@ router.get('/user/:id',
     ReviewController.getUserAllReviews
 );
 
+router.get('/events/:id', ReviewController.getReviewsByEvent);
 
 export const ReviewRouter = router;

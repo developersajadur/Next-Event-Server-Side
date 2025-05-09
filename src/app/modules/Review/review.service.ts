@@ -4,7 +4,7 @@ import httpStatus from "http-status"
 
 // eslint-disable-next-line no-unused-vars
 const createReview = async (payload: any) => {
-  console.log("Payload:", payload);
+ // console.log("Payload:", payload);
 
     const event = await prisma.event.findUnique({
       where: {
@@ -33,18 +33,17 @@ const createReview = async (payload: any) => {
       userId: payload.userId,
     })
 
-    const participation = await prisma.participant.findFirst({
-      where: {
-        eventId: payload.eventId,
-        userId: payload.userId,    
+    // const participation = await prisma.participant.findFirst({
+    //   where: {
+    //     eventId: payload.eventId,
+    //     userId: payload.userId,    
   
-      },
-    });
-   // console.log("Participation result:", participation);
+    //   },
+    // });
 
-    if (!participation) {
-        throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You didn't attend this event")      
-    }
+    // if (!participation) {
+    //     throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You didn't attend this event")      
+    // }
   
     const result = await prisma.review.create({
       data: {
@@ -169,6 +168,29 @@ const deleteReview = async (id: string) => {
     return reviews;
   };
 
+  const getReviewsByEvent = async (id: string) => {
+    const reviews = await prisma.review.findMany({
+      where: {
+        id,
+        isDeleted: false,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            profileImage: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  
+    return reviews;
+  };
+
 
 export const ReviewServices = {
     createReview,
@@ -176,5 +198,6 @@ export const ReviewServices = {
     deleteReview,
     updateReview,
     getMyReviews,
-    getUserAllReviews
+    getUserAllReviews,
+    getReviewsByEvent
 }

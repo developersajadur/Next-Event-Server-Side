@@ -97,6 +97,18 @@ const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
     });
   });
 
+  const getReviewsByEvent = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const result = await ReviewServices.getReviewsByEvent(id);
+  
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get Reviews By Event successfully!",
+      data: result,
+    });
+  });
+
 
 
 export const ReviewController = {
@@ -105,5 +117,6 @@ export const ReviewController = {
     deleteReview,
     updateReview,
     getMyReviews,
-    getUserAllReviews
+    getUserAllReviews,
+    getReviewsByEvent
 }
