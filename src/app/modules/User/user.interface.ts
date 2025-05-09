@@ -24,11 +24,14 @@ export type TUserPayload = {
 
 
   export interface ITokenUser {
+    userId: string;
     name: string;
     email: string;
-    id: string;
     role: "USER" | "ADMIN";
-    profileImage?: string;
+    profileImage: string;
+    address: string;
+    phoneNumber: number;
+    occupation: string;
     iat: number;
     exp: number;
   }
