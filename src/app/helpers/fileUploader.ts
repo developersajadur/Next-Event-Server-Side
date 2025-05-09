@@ -16,7 +16,7 @@ const upload = multer({ dest: 'temp/' });
 const uploadToCloudinary = async (
   file: IFile,
 ): Promise<ICLoudinaryResponse> => {
-  console.log('Starting upload to Cloudinary...');
+  // console.log('Starting upload to Cloudinary...');
 
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
@@ -25,10 +25,10 @@ const uploadToCloudinary = async (
         fs.unlinkSync(file.path);
 
         if (error) {
-          console.error('Error uploading to Cloudinary:', error);
+          // console.error('Error uploading to Cloudinary:', error);
           reject(error);
         } else {
-          console.log('File uploaded successfully to Cloudinary:', result);
+          // console.log('File uploaded successfully to Cloudinary:', result);
           resolve(result);
         }
       },
