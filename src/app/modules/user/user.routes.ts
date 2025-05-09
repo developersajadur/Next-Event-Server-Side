@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { fileUploads } from '../../helpers/fileUploader';
-import { userController } from '../User/user.controller';
-import { createUserZodSchema } from '../User/user.validation';
+import { userController } from '../user/user.controller';
+import { createUserZodSchema } from '../user/user.validation';
 const router = express.Router();
 
 router.get('/', userController.getAllUsersFromDB);

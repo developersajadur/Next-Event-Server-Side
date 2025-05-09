@@ -4,7 +4,7 @@ import config from '../../config';
 import AppError from '../../errors/AppError';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import prisma from '../../shared/prisma';
-import { publicUserSelectFields, TUserPayload } from './user.interface';
+import { publicUserSelectFields, TUserPayload } from '../user/user.interface';
 // createUserIntoDB
 const createUserIntoDB = async (userData: TUserPayload) => {
   const { password, ...restData } = userData;
