@@ -14,30 +14,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fileUploads = void 0;
 const cloudinary_1 = require("cloudinary");
-const fs_1 = __importDefault(require("fs"));
 const multer_1 = __importDefault(require("multer"));
+const stream_1 = require("stream");
 const config_1 = __importDefault(require("../config"));
 cloudinary_1.v2.config({
     cloud_name: config_1.default.cloudinary.CLOUD_NAME,
     api_key: config_1.default.cloudinary.CLOUD_API_KEY,
     api_secret: config_1.default.cloudinary.CLOUD_API_SECRET,
 });
-const upload = (0, multer_1.default)({ dest: 'temp/' });
-// Function to upload file to Cloudinary
+// Use memory storage instead of writing to disk
+const storage = multer_1.default.memoryStorage();
+const upload = (0, multer_1.default)({ storage });
+// Helper to convert buffer to stream
+const bufferToStream = (buffer) => {
+    const readable = new stream_1.Readable();
+    readable._read = () => { };
+    readable.push(buffer);
+    readable.push(null);
+    return readable;
+};
+// Function to upload file buffer to Cloudinary
 const uploadToCloudinary = (file) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log('Starting upload to Cloudinary...');
     return new Promise((resolve, reject) => {
-        cloudinary_1.v2.uploader.upload(file.path, (error, result) => {
-            fs_1.default.unlinkSync(file.path);
-            if (error) {
-                // console.error('Error uploading to Cloudinary:', error);
-                reject(error);
-            }
-            else {
-                // console.log('File uploaded successfully to Cloudinary:', result);
-                resolve(result);
-            }
+        const uploadStream = cloudinary_1.v2.uploader.upload_stream((error, result) => {
+            if (error)
+                return reject(error);
+            resolve(result);
         });
+        bufferToStream(file.buffer).pipe(uploadStream);
     });
 });
 exports.fileUploads = {
