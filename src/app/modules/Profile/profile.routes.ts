@@ -1,7 +1,7 @@
-import { ProfileController } from "./profile.controller"
 import { Role } from "@prisma/client"
 import auth from "../../middlewares/Auth"
 import { Router } from "express"
+import { ProfileController } from "./profile.controller"
 
 const router = Router()
 
