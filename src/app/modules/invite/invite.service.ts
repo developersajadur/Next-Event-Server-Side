@@ -12,7 +12,7 @@ const sentInvite = async (payload: {
 }) => {
   const { inviteReceiverId, eventId, inviteSenderId } = payload;
 
-  // Validate invite receiver
+  
   const inviteReceiver = await prisma.user.findUnique({
     where: { id: inviteReceiverId },
   });
@@ -28,7 +28,7 @@ const sentInvite = async (payload: {
     );
   }
 
-  // Validate event
+
   const event = await prisma.event.findUnique({
     where: { id: eventId },
   });
@@ -37,7 +37,7 @@ const sentInvite = async (payload: {
     throw new AppError(status.NOT_FOUND, "Event does not exist");
   }
 
-  // Validate sender
+
   const sender = await prisma.user.findUnique({
     where: { id: inviteSenderId },
   });
@@ -49,7 +49,6 @@ const sentInvite = async (payload: {
     );
   }
 
-  // Check for duplicate invite
   const existingInvite = await prisma.invite.findFirst({
     where: {
       eventId,
@@ -65,12 +64,13 @@ const sentInvite = async (payload: {
     );
   }
 
-  // Create the invite
+
   const invite = await prisma.invite.create({
     data: payload
   });
 
-  // Prepare email content
+
+
   const html = await EmailHelper.createEmailContent(
     {
       name: inviteReceiver.name,
@@ -78,10 +78,10 @@ const sentInvite = async (payload: {
       eventTitle: event.title,
       eventLink: `${config.client_site_url}/events/${event.id}`,
     },
-    "invite" // Template file: invite.template.hbs
+    "invite" 
   );
 
-  // Send email
+
   await EmailHelper.sendEmail(
     inviteReceiver.email,
     html,
