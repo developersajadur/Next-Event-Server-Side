@@ -5,9 +5,9 @@ import { fileUploads } from '../../helpers/fileUploader';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import { IFile } from '../../interfaces/file';
 import prisma from '../../shared/prisma';
-import { publicUserSelectFields } from './user.interface';
+// import { publicUserSelectFields } from './user.interface';
 import config from '../../config';
-
+import { Prisma } from '@prisma/client';
 // createUserIntoDB
 const createUserIntoDB = async (req: Request) => {
   // console.log("service data ", req.body)
@@ -66,7 +66,7 @@ const createUserIntoDB = async (req: Request) => {
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,
-      profileImage: newUser.profileImage,
+      profileImage: newUser.profileImage ?? undefined,
       phoneNumber: newUser.phoneNumber,
       address: newUser.address,
       occupation: newUser.occupation,
@@ -95,7 +95,7 @@ const createUserIntoDB = async (req: Request) => {
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
-        const field = error.meta?.target?.[0];
+        const field = (error.meta?.target as string[])?.[0];
         if (field === 'email') {
           throw new AppError(409, 'Email already exists');
         } else if (field === 'phoneNumber') {
@@ -111,7 +111,7 @@ const createUserIntoDB = async (req: Request) => {
 // get User
 const getAllUsersFromDB = async () => {
   const result = await prisma.user.findMany({
-    select: publicUserSelectFields,
+    // select: publicUserSelectFields,
   });
   return result;
 };

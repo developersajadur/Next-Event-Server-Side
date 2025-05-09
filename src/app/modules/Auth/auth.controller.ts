@@ -7,25 +7,27 @@ import { IAuthenticatedUser } from './auth.interface';
 import { authService } from './auth.service';
 
 // Login user
-const loginUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await authService.loginUser(req.body);
-  const { refreshToken } = result;
+const loginUser = catchAsync(
+  async (req: Request & { user?: IAuthenticatedUser }, res: Response) => {
+    const result = await authService.loginUser(req.body);
+    const { refreshToken } = result;
 
-  res.cookie('refreshToken', refreshToken, {
-    secure: config.node_env === 'production',
-    httpOnly: true,
-    sameSite: 'none',
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-  });
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: 'Logged in user successfully',
-    data: {
-      accessToken: result.accessToken,
-    },
-  });
-});
+    res.cookie('refreshToken', refreshToken, {
+      secure: config.node_env === 'production',
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24 * 365,
+    });
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'Logged in user successfully',
+      data: {
+        accessToken: result.accessToken,
+      },
+    });
+  },
+);
 
 // refreshToken
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
@@ -43,7 +45,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
 const passwordChange = catchAsync(
   async (req: Request & { user?: IAuthenticatedUser }, res: Response) => {
-    const user = req.user;
+    const user = req.user!;
     const bodyData = req.body;
     const result = await authService.passwordChange(user, bodyData);
 
@@ -93,29 +95,23 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
       success: false,
       statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      message: error.message || 'Something went wrong',
+      message: 'Something went wrong',
       data: null,
     });
   }
 });
 
-//
-
-
 // log out
-import { Request, Response } from "express";
-
- const logOut = async (req: Request, res: Response) => {
+const logOut = async (req: Request, res: Response) => {
   res
-    .clearCookie("accessToken", {
+    .clearCookie('accessToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
     })
     .status(200)
-    .json({ success: true, message: "Logged out successfully" });
+    .json({ success: true, message: 'Logged out successfully' });
 };
-
 
 export const authControlller = {
   loginUser,
@@ -123,5 +119,5 @@ export const authControlller = {
   passwordChange,
   forgotPassword,
   resetPassword,
-  logOut
+  logOut,
 };
