@@ -3,7 +3,7 @@ import status from 'http-status';
 import config from '../../config';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
-import { userService } from '../user/user.service';
+import { userService } from '../User/user.service';
 
 
 const createUserIntoDB = catchAsync(async (req: Request, res: Response) => {
