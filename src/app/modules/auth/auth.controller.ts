@@ -107,11 +107,13 @@ const logOut = async (req: Request, res: Response) => {
     .clearCookie('accessToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'strict', 
+      maxAge: 0,
     })
-    .status(200)
-    .json({ success: true, message: 'Logged out successfully' });
+    .status(200) 
+    .json({ success: true, message: 'Logged out successfully' }); 
 };
+
 
 export const authControlller = {
   loginUser,

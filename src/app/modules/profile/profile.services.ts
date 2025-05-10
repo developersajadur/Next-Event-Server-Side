@@ -1,7 +1,7 @@
 import status from 'http-status';
 import AppError from '../../errors/AppError';
 import { fileUploads } from '../../helpers/fileUploader';
-import { IFile } from '../../interfaces/file';
+// import { IFile } from '../../interfaces/file';
 import prisma from '../../shared/prisma';
 import { UpdateProfilePayload } from '../profile/profile.interface';
 import { selectFields } from './profile.constraint';
@@ -16,7 +16,8 @@ const getSingleProfile = async (id: string) => {
 const updateUserProfile = async (
   userId: string,
   payload: UpdateProfilePayload,
-  file?: IFile,
+  file?: Express.Multer.File
+
 ) => {
   try {
     const userExist = await prisma.user.findUniqueOrThrow({

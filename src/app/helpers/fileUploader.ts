@@ -1,38 +1,36 @@
 import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs';
 import multer from 'multer';
 import config from '../config';
-import { ICLoudinaryResponse, IFile } from '../interfaces/file';
+import { ICLoudinaryResponse } from '../interfaces/file';
 
+// Cloudinary config
 cloudinary.config({
   cloud_name: config.cloudinary.CLOUD_NAME,
   api_key: config.cloudinary.CLOUD_API_KEY,
   api_secret: config.cloudinary.CLOUD_API_SECRET,
 });
 
-const upload = multer({ dest: 'temp/' });
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// Function to upload file to Cloudinary
+// Upload using Buffer instead of path
 const uploadToCloudinary = async (
-  file: IFile,
+  file: Express.Multer.File
 ): Promise<ICLoudinaryResponse> => {
-  console.log('Starting upload to Cloudinary...');
-
   return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      file.path,
-      (error: Error, result: ICLoudinaryResponse) => {
-        fs.unlinkSync(file.path);
-
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: 'user-profile-images' }, 
+      (error, result) => {
         if (error) {
           console.error('Error uploading to Cloudinary:', error);
-          reject(error);
-        } else {
-          // console.log('File uploaded successfully to Cloudinary:', result);
-          resolve(result);
+          return reject(error);
         }
-      },
+        if (!result) return reject(new Error('No result from Cloudinary'));
+        resolve(result as unknown as ICLoudinaryResponse);
+      }
     );
+
+    uploadStream.end(file.buffer); 
   });
 };
 
