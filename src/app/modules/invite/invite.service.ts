@@ -153,6 +153,15 @@ const getMyAllReceivedInvites = async (userId: string) => {
               profileImage: true
             }
           },
+          invitee:{
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+              profileImage: true
+            }
+          }
           },
     });
     
@@ -200,7 +209,7 @@ const acceptInvite = async (inviteId: string) => {
         if(!invite) {
             throw new AppError(status.NOT_FOUND, "Invite not found");
         }
-        // console.log(invite.inviteReceiverId, invite.eventId);
+   
         const dataToCreateParticipant = {
             eventId: invite.eventId,
             userId: invite.inviteReceiverId,
@@ -209,7 +218,7 @@ const acceptInvite = async (inviteId: string) => {
 
 
       const participant =  await participantService.createParticipant(dataToCreateParticipant);
-      // console.log(participant);
+     
       
      if(participant){
         await tx.invite.update({

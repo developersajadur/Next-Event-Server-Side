@@ -111,7 +111,10 @@ const createUserIntoDB = async (req: Request) => {
 // get User
 const getAllUsersFromDB = async () => {
   const result = await prisma.user.findMany({
-    // select: publicUserSelectFields,
+   where:{
+    isBlocked:false,
+    isDeleted:false
+   }
   });
   return result;
 };
@@ -151,3 +154,4 @@ export const userService = {
   getAllUsersFromDB,
   deleteUserFromDB,
 };
+ 

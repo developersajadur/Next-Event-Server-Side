@@ -2,13 +2,15 @@ import express, { NextFunction, Request, Response } from 'express';
 import { fileUploads } from '../../helpers/fileUploader';
 import { userController } from '../user/user.controller';
 import { createUserZodSchema } from '../user/user.validation';
+import auth from '../../middlewares/Auth';
+import { Role } from '@prisma/client';
 const router = express.Router();
 
 router.get('/', userController.getAllUsersFromDB);
 router.get('/:id', userController.getSingleUserFromDB);
 router.delete(
   '/:id',
-  //auth(Role.ADMIN),
+  auth(Role.ADMIN),
   userController.deleteUserFromDB,
 );
 router.post(
