@@ -20,13 +20,12 @@ router.post(
       if (req.file) {
         // parsedData.profileImage = `${process.env.SERVER_URL}/uploads/${req.file.filename}`;
         const cloudinaryRes = await fileUploads.uploadToCloudinary(req.file)
-        console.log('Cloudinary result:', cloudinaryRes);
         parsedData.profileImage=cloudinaryRes.secure_url
       }
 
       const validatedData = createUserZodSchema.parse(parsedData);
       req.body = validatedData;
-      console.log(req.body)
+      // console.log(req.body)
       return userController.createUserIntoDB(req, res, next);
     } catch (error) {
       next(error);

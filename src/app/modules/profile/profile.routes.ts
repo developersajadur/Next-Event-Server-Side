@@ -1,15 +1,26 @@
-import { Role } from "@prisma/client"
-import auth from "../../middlewares/Auth"
-import { Router } from "express"
-import { ProfileController } from "../profile/profile.controller"
+import { Role } from '@prisma/client';
+import { Router } from 'express';
+import { fileUploads } from '../../helpers/fileUploader';
+import auth from '../../middlewares/Auth';
+import { ProfileController } from '../profile/profile.controller';
 
-const router = Router()
+const router = Router();
 
-router.get('/:id', auth('ADMIN','USER'),ProfileController.getSingleProfile)
+router.get('/:id', auth('ADMIN', 'USER'), ProfileController.getSingleProfile);
 
-router.patch("/:userId", auth(Role.USER), ProfileController.updateUserProfile)
+// update profile
+router.patch(
+  '/:userId',
+  auth(Role.USER),
+  fileUploads.upload.single('profileImage'),
+  ProfileController.updateUserProfile,
+);
 
-router.get('/get/my-profile-data', auth(Role.ADMIN, Role.USER), ProfileController.getMyProfileData)
+// get profile
+router.get(
+  '/get/my-profile-data',
+  auth(Role.ADMIN, Role.USER),
+  ProfileController.getMyProfileData,
+);
 
-
-export const profileRoutes = router
+export const profileRoutes = router;

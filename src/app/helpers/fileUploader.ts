@@ -28,7 +28,7 @@ const uploadToCloudinary = async (
           console.error('Error uploading to Cloudinary:', error);
           reject(error);
         } else {
-          console.log('File uploaded successfully to Cloudinary:', result);
+          // console.log('File uploaded successfully to Cloudinary:', result);
           resolve(result);
         }
       },
