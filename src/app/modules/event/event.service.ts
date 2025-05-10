@@ -187,23 +187,33 @@ const getSingleEvent = async (id: string) => {
   });
   return result;
 };
-const getMyEvents = async (payload: Request & { user?: any }) => {
-  const email = payload.user.email;
 
-  const isUserExits = await prisma.user.findUniqueOrThrow({
-    where: {
-      email: email,
-    },
-  });
+
+
+const getMyEvents = async (payload: any) => {
 
   const result = await prisma.event.findMany({
-    where: { organizerId: isUserExits.id, isDeleted: false },
-    include: {
-      organizer: true,
-    },
+    where: { organizerId: payload.id, isDeleted: false },
+    include:{
+      participants: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profileImage: true,
+            },
+          },
+        },
+      }
+    }
   });
   return result;
 };
+
+
+
 const getSingleEventBySlug = async (slug: string) => {
   const result = await prisma.event.findUniqueOrThrow({
     where: { slug, isDeleted: false },

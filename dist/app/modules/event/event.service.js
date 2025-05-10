@@ -174,17 +174,22 @@ const getSingleEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return result;
 });
 const getMyEvents = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const email = payload.user.email;
-    const isUserExits = yield prisma_1.default.user.findUniqueOrThrow({
-        where: {
-            email: email,
-        },
-    });
     const result = yield prisma_1.default.event.findMany({
-        where: { organizerId: isUserExits.id, isDeleted: false },
+        where: { organizerId: payload.id, isDeleted: false },
         include: {
-            organizer: true,
-        },
+            participants: {
+                select: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            profileImage: true,
+                        },
+                    },
+                },
+            }
+        }
     });
     return result;
 });
