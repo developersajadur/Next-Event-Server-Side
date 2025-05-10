@@ -22,7 +22,7 @@ router.get(
 );
 
 router.get(
-  '/my-events',
+  '/profile/my-events',
   Auth(Role.ADMIN, Role.USER),
   EventController.getMyEvents,
 );
