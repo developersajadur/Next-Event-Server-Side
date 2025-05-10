@@ -7,7 +7,7 @@ import { userService } from '../user/user.service';
 
 
 const createUserIntoDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await userService.createUserIntoDB(req);
+  const result = await userService.createUserIntoDB(req.body);
   res.cookie('refreshToken', result.refreshToken, {
     secure: config.node_env === 'production',
     httpOnly: true,

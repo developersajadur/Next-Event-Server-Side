@@ -1,7 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import multer from 'multer';
-import path from 'path';
 import config from '../config';
 import { ICLoudinaryResponse, IFile } from '../interfaces/file';
 
@@ -11,33 +10,25 @@ cloudinary.config({
   api_secret: config.cloudinary.CLOUD_API_SECRET,
 });
 
-// multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(process.cwd(), 'uploads'));
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
+const upload = multer({ dest: 'temp/' });
 
-const upload = multer({ storage: storage });
-
-
-//
+// Function to upload file to Cloudinary
 const uploadToCloudinary = async (
   file: IFile,
 ): Promise<ICLoudinaryResponse> => {
-  // Upload an image
+  console.log('Starting upload to Cloudinary...');
 
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
       file.path,
       (error: Error, result: ICLoudinaryResponse) => {
         fs.unlinkSync(file.path);
+
         if (error) {
+          console.error('Error uploading to Cloudinary:', error);
           reject(error);
         } else {
+          console.log('File uploaded successfully to Cloudinary:', result);
           resolve(result);
         }
       },
