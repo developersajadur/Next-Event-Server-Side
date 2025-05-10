@@ -18,7 +18,7 @@ event_controller_1.EventController.getSingleEvent);
 router.get('/slug/:slug', 
 // Auth(Role.ADMIN,Role.USER),
 event_controller_1.EventController.getSingleEventBySlug);
-router.get('/my-events', (0, Auth_1.default)(client_1.Role.ADMIN, client_1.Role.USER), event_controller_1.EventController.getMyEvents);
+router.get('/profile/my-events', (0, Auth_1.default)(client_1.Role.ADMIN, client_1.Role.USER), event_controller_1.EventController.getMyEvents);
 router.patch('/:id', (0, Auth_1.default)(client_1.Role.ADMIN), event_controller_1.EventController.deleteEvent);
 router.post('/', (0, Auth_1.default)(client_1.Role.ADMIN, client_1.Role.USER), fileUploader_1.fileUploads.upload.single('file'), (req, res, next) => {
     const parsedData = JSON.parse(req.body.data);
