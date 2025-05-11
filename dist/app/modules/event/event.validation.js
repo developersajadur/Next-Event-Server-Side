@@ -8,7 +8,7 @@ exports.creatEventValidation = zod_1.z.object({
     venue: zod_1.z.string({ required_error: 'venue is required' }),
     type: zod_1.z.string({ required_error: 'type is required' }),
     isPaid: zod_1.z.boolean({ required_error: 'isPaid is required' }),
-    fee: zod_1.z.number({ required_error: 'fee is required' }),
+    fee: zod_1.z.number({ required_error: 'fee is required' }).optional(),
     category: zod_1.z.string({ required_error: 'category is required' }),
     eventStatus: zod_1.z.string({ required_error: 'eventStatus is required' }),
     startDate: zod_1.z.string({ required_error: 'startDate is required' }),

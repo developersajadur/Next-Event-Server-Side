@@ -14,4 +14,5 @@ route.get("/my-all-sent-invites", (0, Auth_1.default)(client_1.Role.USER, client
 route.get("/", (0, Auth_1.default)(client_1.Role.USER, client_1.Role.ADMIN), invite_controller_1.default.getAllInvite);
 route.get("/my-all-received-invites", (0, Auth_1.default)(client_1.Role.USER, client_1.Role.ADMIN), invite_controller_1.default.getMyAllReceivedInvites);
 route.post("/accept-invite/:inviteId", (0, Auth_1.default)(client_1.Role.USER, client_1.Role.ADMIN), invite_controller_1.default.acceptInvite);
+route.patch("/:id", (0, Auth_1.default)(client_1.Role.USER, client_1.Role.ADMIN), invite_controller_1.default.deleteInvite);
 exports.inviteRoute = route;

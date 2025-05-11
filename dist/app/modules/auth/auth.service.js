@@ -140,6 +140,24 @@ const passwordChange = (user, payload) => __awaiter(void 0, void 0, void 0, func
         message: 'Password changed successfully',
     };
 });
+// getProfileInfo
+const getProfileInfo = (token) => __awaiter(void 0, void 0, void 0, function* () {
+    const decoded = yield jwtHelpers_1.jwtHelpers.verifyToken(token, config_1.default.jwt.ACCESS_TOKEN_SECRET);
+    const userId = decoded === null || decoded === void 0 ? void 0 : decoded.id;
+    // console.log(userId)
+    if (!userId) {
+        throw new AppError_1.default(401, 'Invalid Token Payload');
+    }
+    const user = yield prisma_1.default.user.findUnique({
+        where: {
+            id: userId,
+        },
+    });
+    if (!user) {
+        throw new AppError_1.default(404, 'User not found');
+    }
+    return user;
+});
 // forgot password
 const forgotPassword = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = yield prisma_1.default.user.findUniqueOrThrow({
@@ -217,4 +235,5 @@ exports.authService = {
     passwordChange,
     forgotPassword,
     resetPassword,
+    getProfileInfo,
 };

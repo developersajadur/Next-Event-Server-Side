@@ -206,11 +206,34 @@ const deleteEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
     yield prisma_1.default.event.findUniqueOrThrow({
         where: { id },
     });
-    const result = yield prisma_1.default.event.update({
-        where: { id },
-        data: { isDeleted: true },
-    });
-    return result;
+    const transaction = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+        const participants = yield tx.participant.findMany({
+            where: { eventId: id },
+        });
+        const invites = yield tx.invite.findMany({
+            where: { eventId: id },
+        });
+        if (participants.length > 0) {
+            for (const participant of participants) {
+                yield tx.participant.deleteMany({
+                    where: { id: participant.id },
+                });
+            }
+        }
+        if (invites.length > 0) {
+            for (const invite of invites) {
+                yield tx.invite.deleteMany({
+                    where: { id: invite.id },
+                });
+            }
+        }
+        const result = yield tx.event.update({
+            where: { id },
+            data: { isDeleted: true },
+        });
+        return result;
+    }));
+    return transaction;
 });
 exports.eventService = {
     createEvent,

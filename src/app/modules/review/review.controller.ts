@@ -84,14 +84,12 @@ const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
     });
   });
 
-
   const myAllReviews = catchAsync(async (req, res) => {
     const reviewerId = req.params.id;
 
     // console.log(reviewerId)
     const result = await ReviewServices.myAllReviews( reviewerId);
-  
-    sendResponse(res, {
+      sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "my all review fetch succesfully",
@@ -101,13 +99,12 @@ const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
 
 const getReviewsByEvent = catchAsync(async (req, res) => {
   const { eventId } = req.params;
-  
-  const result = await ReviewServices.getReviewsByEvent(eventId);
+    const result = await ReviewServices.getReviewsByEvent(eventId);
   
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "get Reviews By Event successfully!",
+    message: "get Reviews By Event successfully..!",
     data: result,
   });
 });

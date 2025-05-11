@@ -42,17 +42,12 @@ const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, functio
         if (existingUser) {
             throw new AppError_1.default(409, 'Email already exists');
         }
-        // console.log('Email is available, proceeding with user creation.');
-        // Hash password
-        // console.log('Hashing password...');
         const hashPassword = yield bcrypt_1.default.hash(password, 12);
-        // console.log('Password hashed successfully.');
         const newUserData = Object.assign(Object.assign({}, restData), { password: hashPassword });
         // Create new user
         const newUser = yield prisma_1.default.user.create({
             data: newUserData,
         });
-        // console.log('User created successfully:', newUser);
         // token payload
         const tokenPayload = {
             id: newUser.id,
@@ -80,7 +75,6 @@ const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, functio
             if (error.code === 'P2002') {
                 const field = (_c = (_b = error.meta) === null || _b === void 0 ? void 0 : _b.target) === null || _c === void 0 ? void 0 : _c[0];
                 if (field === 'email') {
-                    // console.error('Email conflict detected');
                     throw new AppError_1.default(409, 'Email already exists');
                 }
                 else if (field === 'phoneNumber') {
@@ -89,7 +83,6 @@ const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, functio
                 }
             }
         }
-        // console.error('Error occurred while creating or logging in user:', error);
         throw new AppError_1.default(500, 'Failed to create or login user');
     }
 });

@@ -45,13 +45,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProfileController = void 0;
+exports.ProfileController = exports.updateUserProfile = void 0;
+const http_status_1 = __importStar(require("http-status"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const catchAsync_1 = __importDefault(require("../../helpers/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../helpers/sendResponse"));
-const http_status_1 = __importStar(require("http-status"));
-// import { ITokenUser } from "../user/user.interface";
-const AppError_1 = __importDefault(require("../../errors/AppError"));
 const profile_services_1 = require("../profile/profile.services");
+// get Single Profile
 const getSingleProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield profile_services_1.ProfileService.getSingleProfile(req.params.id);
     (0, sendResponse_1.default)(res, {
@@ -61,17 +61,20 @@ const getSingleProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 
         data: result,
     });
 }));
-const updateUserProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// update profile
+exports.updateUserProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.userId;
-    const payload = req.body;
-    const result = yield profile_services_1.ProfileService.updateUserProfile(userId, payload);
+    const file = req.file;
+    const bodyData = req.body;
+    const result = yield profile_services_1.ProfileService.updateUserProfile(userId, bodyData, file);
     (0, sendResponse_1.default)(res, {
+        statusCode: 200,
         success: true,
-        statusCode: http_status_1.default.OK,
-        message: 'Profile updated successfully',
+        message: 'Profile updated successfull',
         data: result,
     });
 }));
+// get myProfile
 const getMyProfileData = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     if (!user) {
@@ -87,6 +90,6 @@ const getMyProfileData = (0, catchAsync_1.default)((req, res) => __awaiter(void 
 }));
 exports.ProfileController = {
     getSingleProfile,
-    updateUserProfile,
+    updateUserProfile: exports.updateUserProfile,
     getMyProfileData,
 };
