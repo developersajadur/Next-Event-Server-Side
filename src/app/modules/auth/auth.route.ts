@@ -12,6 +12,7 @@ router.post(
   Auth(Role.USER, Role.ADMIN),
   authControlller.passwordChange,
 );
+router.get('/profile', authControlller.getProfileInfo);
 router.post('/forget-password', authControlller.forgotPassword);
 router.post('/reset-password', authControlller.resetPassword);
 router.post('/logout', authControlller.logOut);

@@ -12,16 +12,12 @@ const createUserIntoDB = async (userData: TUserPayload) => {
     const existingUser = await prisma.user.findUnique({
       where: { email: restData.email },
     });
-    
+
     if (existingUser) {
       throw new AppError(409, 'Email already exists');
     }
-    // console.log('Email is available, proceeding with user creation.');
 
-    // Hash password
-    // console.log('Hashing password...');
     const hashPassword = await bcrypt.hash(password, 12);
-    // console.log('Password hashed successfully.');
 
     const newUserData = {
       ...restData,
@@ -32,7 +28,6 @@ const createUserIntoDB = async (userData: TUserPayload) => {
     const newUser = await prisma.user.create({
       data: newUserData,
     });
-    // console.log('User created successfully:', newUser);
 
     // token payload
     const tokenPayload = {
@@ -70,7 +65,6 @@ const createUserIntoDB = async (userData: TUserPayload) => {
       if (error.code === 'P2002') {
         const field = (error.meta?.target as string[])?.[0];
         if (field === 'email') {
-          // console.error('Email conflict detected');
           throw new AppError(409, 'Email already exists');
         } else if (field === 'phoneNumber') {
           // console.error('Phone number conflict detected');
@@ -79,7 +73,6 @@ const createUserIntoDB = async (userData: TUserPayload) => {
       }
     }
 
-    // console.error('Error occurred while creating or logging in user:', error);
     throw new AppError(500, 'Failed to create or login user');
   }
 };
