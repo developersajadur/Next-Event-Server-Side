@@ -8,7 +8,7 @@ export const creatEventValidation = z.object({
     venue: z.string({ required_error: 'venue is required' }),
     type: z.string({ required_error: 'type is required' }),
     isPaid: z.boolean({ required_error: 'isPaid is required' }),
-    fee: z.number({ required_error: 'fee is required' }),
+    fee: z.number({ required_error: 'fee is required' }).optional(),
     category: z.string({ required_error: 'category is required' }),
     eventStatus: z.string({ required_error: 'eventStatus is required' }),
     startDate: z.string({ required_error: 'startDate is required' }),
