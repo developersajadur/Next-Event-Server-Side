@@ -85,29 +85,32 @@ const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
   });
 
 
-  const getUserAllReviews = catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const result = await ReviewServices.getUserAllReviews(id);
+  const myAllReviews = catchAsync(async (req, res) => {
+    const reviewerId = req.params.id;
+
+    // console.log(reviewerId)
+    const result = await ReviewServices.myAllReviews( reviewerId);
   
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Review Delete successfully!",
+      message: "my all review fetch succesfully",
       data: result,
     });
   });
 
-  const getReviewsByEvent = catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const result = await ReviewServices.getReviewsByEvent(id);
+const getReviewsByEvent = catchAsync(async (req, res) => {
+  const { eventId } = req.params;
   
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "get Reviews By Event successfully!",
-      data: result,
-    });
+  const result = await ReviewServices.getReviewsByEvent(eventId);
+  
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "get Reviews By Event successfully!",
+    data: result,
   });
+});
 
 
 
@@ -117,6 +120,6 @@ export const ReviewController = {
     deleteReview,
     updateReview,
     getMyReviews,
-    getUserAllReviews,
+    myAllReviews,
     getReviewsByEvent
 }

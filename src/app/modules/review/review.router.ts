@@ -22,8 +22,9 @@ router.delete('/:id',
     Auth('ADMIN','USER'), 
 ReviewController.deleteReview)
 
-router.get('/user/:id', 
-    ReviewController.getUserAllReviews
+router.get('/my-review/:id',
+    Auth('ADMIN','USER'), 
+    ReviewController.myAllReviews
 );
 
 router.get('/events/:id', ReviewController.getReviewsByEvent);

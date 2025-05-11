@@ -13,7 +13,9 @@ const createReview = async (payload: any) => {
     });
   
     if (!event || event.isDeleted) {
+      console.log("Event not found")
       throw new AppError(httpStatus.NOT_FOUND, "Event not found");
+      
     }
   
     const existingReview = await prisma.review.findFirst({
@@ -23,8 +25,10 @@ const createReview = async (payload: any) => {
         isDeleted: false,
       },
     });
+    
   
     if (existingReview) {
+      console.log(existingReview)
         throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You already reviewed this event")
      
     }
@@ -151,10 +155,10 @@ const deleteReview = async (id: string) => {
 
 
   
-  const getUserAllReviews = async (id: string) => {
+  const myAllReviews = async (reviewerId: string) => {
     const reviews = await prisma.review.findMany({
       where: {
-        id, 
+         reviewerId, 
         isDeleted: false,
       },
       include: {
@@ -168,36 +172,50 @@ const deleteReview = async (id: string) => {
     return reviews;
   };
 
-  const getReviewsByEvent = async (id: string) => {
-    const reviews = await prisma.review.findMany({
-      where: {
-        id,
-        isDeleted: false,
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-            profileImage: true,
-          },
+  
+const getReviewsByEvent = async (eventId: string) => {
+ 
+  const reviews = await prisma.review.findMany({
+    where: {
+      eventId: eventId,
+      isDeleted: false,
+    },
+    select: {
+      comment: true,
+      rating: true,
+      createdAt: true,
+      eventId: true, 
+      reviewer: {
+        select: {
+          name: true,
+          email: true,
+          profileImage: true,
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+ 
+  const transformedReviews = reviews.map((review) => ({
+    name: review.reviewer.name,
+    role: 'User',
+    comment: review.comment,
+    rating: review.rating,
+    image: review.reviewer.profileImage || '/placeholder.svg',
+    eventId: review.eventId,
+  }));
+
   
-    return reviews;
-  };
-
-
+  return transformedReviews;
+};
 export const ReviewServices = {
     createReview,
     getAllReview,
     deleteReview,
     updateReview,
     getMyReviews,
-    getUserAllReviews,
+    myAllReviews,
     getReviewsByEvent
 }

@@ -1,18 +1,13 @@
 import { Router } from 'express';
-import { eventRoutes } from '../modules/events/event.routes';
+import { authRoutes } from '../modules/auth/auth.route';
+import { eventRoutes } from '../modules/event/event.routes';
 import { inviteRoute } from '../modules/invite/invite.route';
 import { participantRoute } from '../modules/participant/participant.route';
 import { paymentRoute } from '../modules/payment/payment.route';
-import { profileRoutes } from '../modules/profile/profile.routes';
 import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
-import { userRouter } from '../modules/User/user.routes';
-import { ReviewRouter } from '../modules/Review/review.router';
-import { paymentRoute } from '../modules/payment/payment.route';
-import { participantRoute } from '../modules/participant/participant.route';
-import { inviteRoute } from '../modules/invite/invite.route';
-import { eventRoutes } from '../modules/events/event.routes';
+import { userRouter } from '../modules/user/user.routes';
+import { ReviewRouter } from '../modules/review/review.router';
 import { profileRoutes } from '../modules/profile/profile.routes';
-import { authRoutes } from '../modules/Auth/auth.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -22,7 +17,7 @@ const moduleRoutes = [
   },
   {
     path: '/auth',
-    route:authRoutes,
+    route: authRoutes,
   },
   {
     path: '/review',
