@@ -30,7 +30,7 @@ const emailSender = (email, html) => __awaiter(void 0, void 0, void 0, function*
     yield transporter.sendMail({
         from: '"nextEvent" <hydravulgaris760@gmail.com>',
         to: email,
-        subject: 'Reset Password Link ✔',
+        subject: 'Reset Password Link ',
         html,
     });
 });

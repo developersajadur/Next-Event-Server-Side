@@ -12,6 +12,7 @@ const router = express_1.default.Router();
 router.post('/login', auth_controller_1.authControlller.loginUser);
 router.post('/refreshToken', auth_controller_1.authControlller.refreshToken);
 router.post('/change-password', (0, Auth_1.default)(client_1.Role.USER, client_1.Role.ADMIN), auth_controller_1.authControlller.passwordChange);
+router.get('/profile', auth_controller_1.authControlller.getProfileInfo);
 router.post('/forget-password', auth_controller_1.authControlller.forgotPassword);
 router.post('/reset-password', auth_controller_1.authControlller.resetPassword);
 router.post('/logout', auth_controller_1.authControlller.logOut);

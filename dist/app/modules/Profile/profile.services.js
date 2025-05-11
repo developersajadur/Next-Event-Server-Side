@@ -26,37 +26,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProfileService = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
+const fileUploader_1 = require("../../helpers/fileUploader");
+// import { IFile } from '../../interfaces/file';
 const prisma_1 = __importDefault(require("../../shared/prisma"));
+const profile_constraint_1 = require("./profile.constraint");
+// get single profile
 const getSingleProfile = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.user.findUniqueOrThrow({ where: { id } });
     return result;
 });
-const updateUserProfile = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(payload)
-    const userExist = yield prisma_1.default.user.findUniqueOrThrow({
-        where: { id: userId },
-    });
-    if (!userExist) {
-        throw new AppError_1.default(404, 'user not found');
+// update profile
+const updateUserProfile = (userId, payload, file) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userExist = yield prisma_1.default.user.findUniqueOrThrow({
+            where: { id: userId },
+        });
+        if (!userExist) {
+            throw new AppError_1.default(404, 'User not found');
+        }
+        const { userId: _ } = payload, updateData = __rest(payload, ["userId"]);
+        if (file) {
+            const uploadResult = yield fileUploader_1.fileUploads.uploadToCloudinary(file);
+            updateData.profileImage = uploadResult.secure_url;
+        }
+        const result = yield prisma_1.default.user.update({
+            where: { id: userId },
+            data: updateData,
+            select: profile_constraint_1.selectFields,
+        });
+        return result;
     }
-    const result = yield prisma_1.default.user.update({
-        where: {
-            id: userId,
-        },
-        data: payload,
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            address: true,
-            phoneNumber: true,
-            profileImage: true,
-            occupation: true,
-        },
-    });
-    yield prisma_1.default.user.findUniqueOrThrow({ where: { id: userId } });
-    return result;
+    catch (error) {
+        throw new AppError_1.default(403, 'failed ');
+    }
 });
+// get myProfile
 const getMyProfileData = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.user.findUnique({
         where: {
