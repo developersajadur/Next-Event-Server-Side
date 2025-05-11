@@ -60,6 +60,22 @@ const passwordChange = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+// get my profile
+const getProfileInfo = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authToken = req.headers.authorization;
+    if (!authToken || !authToken.startsWith('Bearer ')) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+    const token = authToken.split(' ')[1];
+    const result = yield auth_service_1.authService.getProfileInfo(token);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'profile data fetched successfully',
+        data: result,
+    });
+}));
 // forgot password
 const forgotPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield auth_service_1.authService.forgotPassword(req.body);
@@ -106,6 +122,7 @@ const logOut = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
+        maxAge: 0,
     })
         .status(200)
         .json({ success: true, message: 'Logged out successfully' });
@@ -113,6 +130,7 @@ const logOut = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.authControlller = {
     loginUser,
     refreshToken,
+    getProfileInfo,
     passwordChange,
     forgotPassword,
     resetPassword,

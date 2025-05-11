@@ -17,6 +17,7 @@ const cloudinary_1 = require("cloudinary");
 const multer_1 = __importDefault(require("multer"));
 const stream_1 = require("stream");
 const config_1 = __importDefault(require("../config"));
+// Cloudinary config
 cloudinary_1.v2.config({
     cloud_name: config_1.default.cloudinary.CLOUD_NAME,
     api_key: config_1.default.cloudinary.CLOUD_API_KEY,

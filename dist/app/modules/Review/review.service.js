@@ -17,14 +17,15 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const prisma_1 = __importDefault(require("../../shared/prisma"));
 const http_status_1 = __importDefault(require("http-status"));
 // eslint-disable-next-line no-unused-vars
-const createReview = (payload, id) => __awaiter(void 0, void 0, void 0, function* () {
+const createReview = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // console.log("Payload:", payload);
     const event = yield prisma_1.default.event.findUnique({
         where: {
             id: payload.eventId,
-            isDeleted: false,
         },
     });
-    if (!event) {
+    if (!event || event.isDeleted) {
+        console.log("Event not found");
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Event not found");
     }
     const existingReview = yield prisma_1.default.review.findFirst({
@@ -35,20 +36,33 @@ const createReview = (payload, id) => __awaiter(void 0, void 0, void 0, function
         },
     });
     if (existingReview) {
+        console.log(existingReview);
         throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, "You already reviewed this event");
     }
-    const participation = yield prisma_1.default.participant.findFirst({
-        where: {
-            eventId: payload.eventId,
-            userId: payload.userId,
-            status: "APPROVED",
-        },
+    console.log("Checking participation for:", {
+        eventId: payload.eventId,
+        userId: payload.userId,
     });
-    if (!participation) {
-        throw new AppError_1.default(http_status_1.default.NOT_ACCEPTABLE, "You didn't attend this event");
-    }
+    // const participation = await prisma.participant.findFirst({
+    //   where: {
+    //     eventId: payload.eventId,
+    //     userId: payload.userId,    
+    //   },
+    // });
+    // if (!participation) {
+    //     throw new AppError(httpStatus.NOT_ACCEPTABLE ,"You didn't attend this event")      
+    // }
     const result = yield prisma_1.default.review.create({
-        data: payload
+        data: {
+            rating: payload.rating,
+            comment: payload.comment,
+            event: {
+                connect: { id: payload.eventId },
+            },
+            reviewer: {
+                connect: { id: payload.userId },
+            },
+        },
     });
     return result;
 });
@@ -120,10 +134,60 @@ const deleteReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+const myAllReviews = (reviewerId) => __awaiter(void 0, void 0, void 0, function* () {
+    const reviews = yield prisma_1.default.review.findMany({
+        where: {
+            reviewerId,
+            isDeleted: false,
+        },
+        include: {
+            event: true,
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+    return reviews;
+});
+const getReviewsByEvent = (eventId) => __awaiter(void 0, void 0, void 0, function* () {
+    const reviews = yield prisma_1.default.review.findMany({
+        where: {
+            eventId: eventId,
+            isDeleted: false,
+        },
+        select: {
+            comment: true,
+            rating: true,
+            createdAt: true,
+            eventId: true,
+            reviewer: {
+                select: {
+                    name: true,
+                    email: true,
+                    profileImage: true,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+    const transformedReviews = reviews.map((review) => ({
+        name: review.reviewer.name,
+        role: 'User',
+        comment: review.comment,
+        rating: review.rating,
+        image: review.reviewer.profileImage || '/placeholder.svg',
+        eventId: review.eventId,
+    }));
+    return transformedReviews;
+});
 exports.ReviewServices = {
     createReview,
     getAllReview,
     deleteReview,
     updateReview,
-    getMyReviews
+    getMyReviews,
+    myAllReviews,
+    getReviewsByEvent
 };

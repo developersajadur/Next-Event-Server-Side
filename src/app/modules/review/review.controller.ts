@@ -1,14 +1,15 @@
 import catchAsync from "../../helpers/catchAsync";
 import sendResponse from "../../helpers/sendResponse";
 import httpStatus from "http-status";
-import { ReviewServices } from "../review/review.service";
+import { ReviewServices } from "./review.service";
 import { Request } from "express";
 
 
 const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
   const payload = req.body;
-  const user = req.user;
-    const result = await ReviewServices.createReview(payload, user.id);  
+  const userId = req.user.id;
+  console.log("User from token:", req.user);
+    const result = await ReviewServices.createReview({...payload, userId});  
     sendResponse(res, {
       statusCode: httpStatus.CREATED,
       success: true,
@@ -83,10 +84,39 @@ const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
     });
   });
 
+  const myAllReviews = catchAsync(async (req, res) => {
+    const reviewerId = req.params.id;
+
+    // console.log(reviewerId)
+    const result = await ReviewServices.myAllReviews( reviewerId);
+      sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "my all review fetch succesfully",
+      data: result,
+    });
+  });
+
+const getReviewsByEvent = catchAsync(async (req, res) => {
+  const { eventId } = req.params;
+    const result = await ReviewServices.getReviewsByEvent(eventId);
+  
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "get Reviews By Event successfully..!",
+    data: result,
+  });
+});
+
+
+
 export const ReviewController = {
     createReview,
     getAllReview,
     deleteReview,
     updateReview,
-    getMyReviews
+    getMyReviews,
+    myAllReviews,
+    getReviewsByEvent
 }
