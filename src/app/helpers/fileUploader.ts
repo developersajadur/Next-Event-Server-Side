@@ -4,11 +4,13 @@ import { Readable } from 'stream';
 import config from '../config';
 import { ICLoudinaryResponse } from '../interfaces/file';
 
+// Cloudinary config
 cloudinary.config({
   cloud_name: config.cloudinary.CLOUD_NAME,
   api_key: config.cloudinary.CLOUD_API_KEY,
   api_secret: config.cloudinary.CLOUD_API_SECRET,
 });
+
 
 // Use memory storage instead of writing to disk
 const storage = multer.memoryStorage();
