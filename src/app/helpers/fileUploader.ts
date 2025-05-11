@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
+import { Readable } from 'stream';
 import config from '../config';
 import { ICLoudinaryResponse } from '../interfaces/file';
 
@@ -10,27 +11,34 @@ cloudinary.config({
   api_secret: config.cloudinary.CLOUD_API_SECRET,
 });
 
+
+// Use memory storage instead of writing to disk
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Upload using Buffer instead of path
+// Helper to convert buffer to stream
+const bufferToStream = (buffer: Buffer) => {
+  const readable = new Readable();
+  readable._read = () => {};
+  readable.push(buffer);
+  readable.push(null);
+  return readable;
+};
+
+// Function to upload file buffer to Cloudinary
 const uploadToCloudinary = async (
-  file: Express.Multer.File
+  file: Express.Multer.File, // file from multer memory storage
 ): Promise<ICLoudinaryResponse> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: 'user-profile-images' }, 
       (error, result) => {
-        if (error) {
-          console.error('Error uploading to Cloudinary:', error);
-          return reject(error);
-        }
-        if (!result) return reject(new Error('No result from Cloudinary'));
-        resolve(result as unknown as ICLoudinaryResponse);
+        if (error) return reject(error);
+        resolve(result as any);
       }
     );
 
-    uploadStream.end(file.buffer); 
+    bufferToStream(file.buffer).pipe(uploadStream);
+// >>>>>>> ad2f5bc8d77b00f5f808f58e8f40e2821f1367ec
   });
 };
 

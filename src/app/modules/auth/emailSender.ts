@@ -18,7 +18,7 @@ const emailSender = async (email: string, html: string) => {
   await transporter.sendMail({
     from: '"nextEvent" <hydravulgaris760@gmail.com>',
     to: email,
-    subject: 'Reset Password Link ✔',
+    subject: 'Reset Password Link ',
     html,
   });
 };

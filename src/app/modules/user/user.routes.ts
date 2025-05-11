@@ -20,6 +20,8 @@ router.post(
       if (req.file) {
         // parsedData.profileImage = `${process.env.SERVER_URL}/uploads/${req.file.filename}`;
         const cloudinaryRes = await fileUploads.uploadToCloudinary(req.file)
+        // console.log('Cloudinary result:', cloudinaryRes);
+
         parsedData.profileImage=cloudinaryRes.secure_url
       }
 
