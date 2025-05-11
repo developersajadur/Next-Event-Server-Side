@@ -88,10 +88,12 @@ const sentInvite = async (payload: {
     `You're Invited to "${event.title}"`
   );
 
+  console.log("🚀 ~ invite:", invite)
   return invite;
 };
 
 const getMyAllSendInvites = async (userId: string) => {
+    
     const invites = await prisma.invite.findMany({
         where: {
         inviteSenderId: userId,
@@ -275,11 +277,17 @@ const getAllInvite = async() => {
   })
   return result
 }
-
+const deleteInvite = async (id: string) => {
+    const result = await prisma.invite.update({
+        where: { id: id },
+        data: { isDeleted: true },
+      })
+      return result;
+};
 
 
 export const InviteService = {
-  sentInvite,
+  sentInvite,deleteInvite,
   getMyAllSendInvites,
   getMyAllReceivedInvites,
   acceptInvite,

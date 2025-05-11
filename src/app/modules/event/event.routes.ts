@@ -17,7 +17,7 @@ router.get(
 );
 
 router.get(
-  '/my-events',
+  '/profile/my-events',
   Auth(Role.ADMIN, Role.USER),
   EventController.getMyEvents,
 );
@@ -36,7 +36,7 @@ router.post(
 );
 
 router.patch(
-  '/:id',
+  '/update/:id',
   Auth(Role.ADMIN, Role.USER),
   fileUploads.upload.single('file'),
   (req: Request, res: Response, next: NextFunction) => {
