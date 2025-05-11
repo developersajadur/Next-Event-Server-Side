@@ -4,7 +4,6 @@ import { Prisma } from '@prisma/client';
 import { fileUploads } from '../../helpers/fileUploader';
 import prisma from '../../shared/prisma';
 import { eventSearchableFields } from './event.constants';
-import { Request } from 'express';
 import calculatePagination from '../../helpers/CalculatePagination';
 import slugify from 'slugify';
 
@@ -225,7 +224,7 @@ const getSingleEventBySlug = async (slug: string) => {
 };
 
 const deleteEvent = async (id: string) => {
-  console.log(id);
+  // console.log(id);
   await prisma.event.findUniqueOrThrow({
     where: { id },
   });
