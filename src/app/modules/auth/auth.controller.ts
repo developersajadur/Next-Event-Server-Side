@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import config from '../../config';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
-import { IAuthenticatedUser } from './auth.interface';
+import { IAuthenticatedUser, IProfileInfo } from './auth.interface';
 import { authService } from './auth.service';
 
 // Login user
@@ -58,6 +58,25 @@ const passwordChange = catchAsync(
   },
 );
 
+// get my profile
+const getProfileInfo = catchAsync(
+  async (req: Request & { user?: IProfileInfo }, res: Response) => {
+    const authToken = req.headers.authorization;
+    if (!authToken || !authToken.startsWith('Bearer ')) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+    const token = authToken.split(' ')[1];
+    const result = await authService.getProfileInfo(token);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'profile data fetched successfully',
+      data: result,
+    });
+  },
+);
+
 // forgot password
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
   await authService.forgotPassword(req.body);
@@ -107,17 +126,17 @@ const logOut = async (req: Request, res: Response) => {
     .clearCookie('accessToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict', 
+      sameSite: 'strict',
       maxAge: 0,
     })
-    .status(200) 
-    .json({ success: true, message: 'Logged out successfully' }); 
+    .status(200)
+    .json({ success: true, message: 'Logged out successfully' });
 };
-
 
 export const authControlller = {
   loginUser,
   refreshToken,
+  getProfileInfo,
   passwordChange,
   forgotPassword,
   resetPassword,

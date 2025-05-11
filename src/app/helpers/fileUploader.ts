@@ -38,7 +38,6 @@ const uploadToCloudinary = async (
     );
 
     bufferToStream(file.buffer).pipe(uploadStream);
-// >>>>>>> ad2f5bc8d77b00f5f808f58e8f40e2821f1367ec
   });
 };
 

@@ -31,7 +31,6 @@ const updateUserProfile = async (
     const { userId: _, ...updateData } = payload;
 
     if (file) {
-      console.log('📂 File received. Uploading to Cloudinary...');
       const uploadResult = await fileUploads.uploadToCloudinary(file);
       updateData.profileImage = uploadResult.secure_url;
     }
