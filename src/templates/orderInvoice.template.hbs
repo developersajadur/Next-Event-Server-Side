@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Invoice</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f1f5f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 4px 0;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background-color: #f9fafb;
+    }
+
+    .total {
+      font-weight: bold;
+      background-color: #fef3c7;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .thank-you {
+      margin-top: 24px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Invoice #{{invoiceId}}</h2>
+    <p><strong>Date:</strong> {{createdAt}}</p>
+    <p><strong>Name:</strong> {{user.name}}</p>
+    <p><strong>Email:</strong> {{user.email}}</p>
+
+    <hr style="margin: 20px 0;" />
+
+    <h3>Order Summary</h3>
+    <table>
+      <tr>
+        <th>Event</th>
+        <td>{{event.title}}</td>
+      </tr>
+      <tr>
+        <th>Event Type</th>
+        <td>{{eventType}}</td>
+      </tr>
+      <tr>
+        <th>Payment Method</th>
+        <td>{{paymentMethod}}</td>
+      </tr>
+      <tr>
+        <th>Status</th>
+        <td>{{paymentStatus}}</td>
+      </tr>
+      <tr>
+        <th>Total Amount</th>
+        <td>৳ {{totalAmount}} BDT</td>
+      </tr>
+      <tr>
+        <th>Discount</th>
+        <td>৳ {{discount}} BDT</td>
+      </tr>
+      <tr>
+        <th>Delivery Charge</th>
+        <td>৳ {{deliveryCharge}} BDT</td>
+      </tr>
+      <tr class="total">
+        <th>Final Amount</th>
+        <td>৳ {{finalAmount}} BDT</td>
+      </tr>
+    </table>
+
+    <p class="thank-you">Thank you for booking with <strong>Next-Event</strong>. We look forward to seeing you!</p>
+
+    <div class="footer">
+      &copy; {{year}} Next-Event. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
