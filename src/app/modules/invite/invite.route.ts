@@ -11,6 +11,7 @@ route.get("/my-all-sent-invites", auth(Role.USER, Role.ADMIN), inviteController.
 route.get("/", auth(Role.USER, Role.ADMIN), inviteController.getAllInvite )
 route.get("/my-all-received-invites", auth(Role.USER, Role.ADMIN), inviteController.getMyAllReceivedInvites )
 route.post("/accept-invite/:inviteId", auth(Role.USER, Role.ADMIN), inviteController.acceptInvite )
+route.patch("/:id", auth(Role.USER, Role.ADMIN), inviteController.deleteInvite )
 
 
 

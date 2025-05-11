@@ -229,11 +229,36 @@ const deleteEvent = async (id: string) => {
     where: { id },
   });
 
-  const result = await prisma.event.update({
+  const transaction=await prisma.$transaction(async (tx) => {
+
+const participants = await tx.participant.findMany({
+  where: { eventId: id },
+});
+const invites= await tx.invite.findMany({
+  where: { eventId: id },
+});
+if (participants.length > 0) {
+  for (const participant of participants) {
+    await tx.participant.deleteMany({
+      where: { id: participant.id },
+    });
+  }
+}
+if (invites.length > 0) {
+  for (const invite of invites) {
+    await tx.invite.deleteMany({
+      where: { id: invite.id },
+    });
+  }
+}
+  const result = await tx.event.update({
     where: { id },
     data: { isDeleted: true },
   });
   return result;
+
+  })
+return transaction;
 };
 export const eventService = {
   createEvent,
