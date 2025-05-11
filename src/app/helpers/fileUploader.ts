@@ -1,47 +1,43 @@
 import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs';
 import multer from 'multer';
-import path from 'path';
+import { Readable } from 'stream';
 import config from '../config';
-import { ICLoudinaryResponse, IFile } from '../interfaces/file';
+import { ICLoudinaryResponse } from '../interfaces/file';
 
+// Cloudinary config
 cloudinary.config({
   cloud_name: config.cloudinary.CLOUD_NAME,
   api_key: config.cloudinary.CLOUD_API_KEY,
   api_secret: config.cloudinary.CLOUD_API_SECRET,
 });
 
-// multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(process.cwd(), 'uploads'));
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
 
-const upload = multer({ storage: storage });
+// Use memory storage instead of writing to disk
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
+// Helper to convert buffer to stream
+const bufferToStream = (buffer: Buffer) => {
+  const readable = new Readable();
+  readable._read = () => {};
+  readable.push(buffer);
+  readable.push(null);
+  return readable;
+};
 
-//
+// Function to upload file buffer to Cloudinary
 const uploadToCloudinary = async (
-  file: IFile,
+  file: Express.Multer.File, // file from multer memory storage
 ): Promise<ICLoudinaryResponse> => {
-  // Upload an image
-
   return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      file.path,
-      (error: Error, result: ICLoudinaryResponse) => {
-        fs.unlinkSync(file.path);
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      },
+    const uploadStream = cloudinary.uploader.upload_stream(
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result as any);
+      }
     );
+
+    bufferToStream(file.buffer).pipe(uploadStream);
   });
 };
 

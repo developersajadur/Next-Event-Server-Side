@@ -70,12 +70,22 @@ const getAllInvite = catchAsync(async (req, res) => {
     data: result,
 });
 })
+const deleteInvite = catchAsync(async (req, res) => {
+  const result = await InviteService.deleteInvite(req.params.id);
+   
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: " Invite Deleted successfully",
+    data: result,
+});
+})
 
 
 export default {
   sentInvite,
   getMyAllSendInvites,
   getMyAllReceivedInvites,
-  acceptInvite,
+  acceptInvite,deleteInvite,
   getAllInvite
 };

@@ -1,9 +1,13 @@
 export type TUserPayload = {
-    name: string;
-    email: string;
-    password: string;
-    phoneNumber: string;
-    profileImage?: string;
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  gender: 'Male' | 'Female' | 'Other';
+  occupation: string;
+  address: string;
+  bio: string;
+  profileImage: string;
   };
 
   export const publicUserSelectFields = {
@@ -19,20 +23,12 @@ export type TUserPayload = {
     updatedAt: true,
   } ;
 
-
-
-
-
   export interface ITokenUser {
     id:string
-    userId: string;
     name: string;
     email: string;
     role: "USER" | "ADMIN";
     profileImage: string;
-    address: string;
-    phoneNumber: number;
-    occupation: string;
     iat: number;
     exp: number;
   }

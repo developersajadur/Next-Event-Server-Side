@@ -1,63 +1,32 @@
-import bcrypt from 'bcrypt';
-import { Request } from 'express';
-import AppError from '../../errors/AppError';
-import { fileUploads } from '../../helpers/fileUploader';
-import { jwtHelpers } from '../../helpers/jwtHelpers';
-import { IFile } from '../../interfaces/file';
-import prisma from '../../shared/prisma';
-// import { publicUserSelectFields } from './user.interface';
-import config from '../../config';
 import { Prisma } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import config from '../../config';
+import AppError from '../../errors/AppError';
+import { jwtHelpers } from '../../helpers/jwtHelpers';
+import prisma from '../../shared/prisma';
+import { publicUserSelectFields, TUserPayload } from '../user/user.interface';
 // createUserIntoDB
-const createUserIntoDB = async (req: Request) => {
-  // console.log("service data ", req.body)
+const createUserIntoDB = async (userData: TUserPayload) => {
+  const { password, ...restData } = userData;
   try {
-    const {
-      name,
-      email,
-      password,
-      phoneNumber,
-      gender,
-      address,
-      occupation,
-      bio,
-    } = req.body;
-
-    // Check if email already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: restData.email },
     });
 
     if (existingUser) {
       throw new AppError(409, 'Email already exists');
     }
 
-    let profileImage: string | undefined;
-    if (req.file) {
-      const file = req.file as IFile;
-      const cloudinaryRes = await fileUploads?.uploadToCloudinary(file);
-      profileImage = await cloudinaryRes.secure_url;
-    }
-
-    // Hash password
     const hashPassword = await bcrypt.hash(password, 12);
 
-    const userData = {
-      name,
-      email,
+    const newUserData = {
+      ...restData,
       password: hashPassword,
-      phoneNumber,
-      gender,
-      address,
-      occupation,
-      bio,
-      profileImage,
     };
-    // console.log("from service", userData);
 
     // Create new user
     const newUser = await prisma.user.create({
-      data: userData,
+      data: newUserData,
     });
 
     // token payload
@@ -75,7 +44,6 @@ const createUserIntoDB = async (req: Request) => {
       isBlocked: newUser.isBlocked,
     };
 
-    // Generate access and refresh tokens
     const accessToken = jwtHelpers.createToken(
       tokenPayload,
       config.jwt.ACCESS_TOKEN_SECRET as string,
@@ -99,6 +67,7 @@ const createUserIntoDB = async (req: Request) => {
         if (field === 'email') {
           throw new AppError(409, 'Email already exists');
         } else if (field === 'phoneNumber') {
+          // console.error('Phone number conflict detected');
           throw new AppError(409, 'Phone number already exists');
         }
       }
@@ -111,7 +80,7 @@ const createUserIntoDB = async (req: Request) => {
 // get User
 const getAllUsersFromDB = async () => {
   const result = await prisma.user.findMany({
-    // select: publicUserSelectFields,
+    select: publicUserSelectFields,
   });
   return result;
 };
@@ -145,13 +114,9 @@ const deleteUserFromDB = async (id: string) => {
   });
   return result;
 };
-
-
-
 export const userService = {
   createUserIntoDB,
   getSingleUserFromDB,
   getAllUsersFromDB,
   deleteUserFromDB,
-  
 };

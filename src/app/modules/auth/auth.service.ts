@@ -140,6 +140,30 @@ const passwordChange = async (
   };
 };
 
+// getProfileInfo
+const getProfileInfo = async (token: string) => {
+  const decoded = await jwtHelpers.verifyToken(
+    token,
+    config.jwt.ACCESS_TOKEN_SECRET as string,
+  );
+  const userId = decoded?.id;
+  // console.log(userId)
+  if (!userId) {
+    throw new AppError(401, 'Invalid Token Payload');
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  return user;
+};
+
 // forgot password
 const forgotPassword = async (payload: { email: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -240,4 +264,5 @@ export const authService = {
   passwordChange,
   forgotPassword,
   resetPassword,
+  getProfileInfo,
 };

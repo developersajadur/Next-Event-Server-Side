@@ -1,42 +1,53 @@
 import status from 'http-status';
 import AppError from '../../errors/AppError';
+import { fileUploads } from '../../helpers/fileUploader';
+// import { IFile } from '../../interfaces/file';
 import prisma from '../../shared/prisma';
 import { UpdateProfilePayload } from '../profile/profile.interface';
+import { selectFields } from './profile.constraint';
 
+// get single profile
 const getSingleProfile = async (id: string) => {
   const result = await prisma.user.findUniqueOrThrow({ where: { id } });
   return result;
 };
 
-const updateUserProfile = async (userId: string, payload:UpdateProfilePayload) => {
-// console.log(payload)
-  const userExist = await prisma.user.findUniqueOrThrow({
-    where: { id: userId },
-  });
+// update profile
+const updateUserProfile = async (
+  userId: string,
+  payload: UpdateProfilePayload,
+  file?: Express.Multer.File
 
-  if (!userExist) {
-    throw new AppError(404, 'user not found');
+) => {
+  try {
+    const userExist = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+
+    if (!userExist) {
+      throw new AppError(404, 'User not found');
+    }
+
+    const { userId: _, ...updateData } = payload;
+
+    if (file) {
+      const uploadResult = await fileUploads.uploadToCloudinary(file);
+      updateData.profileImage = uploadResult.secure_url;
+    }
+
+    const result = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: selectFields,
+    });
+
+    return result;
+  } catch (error) {
+    throw new AppError(403, 'failed ');
   }
-  const result = await prisma.user.update({
-    where: {
-      id: userId,
-    },
-    data: payload,
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      address: true,
-      phoneNumber: true,
-      profileImage: true,
-      occupation: true,
-    },
-  });
-  await prisma.user.findUniqueOrThrow({ where: { id:userId } });
-  return result;
-
 };
 
+// get myProfile
 const getMyProfileData = async (id: string) => {
   const result = await prisma.user.findUnique({
     where: {
@@ -49,6 +60,7 @@ const getMyProfileData = async (id: string) => {
   const { password, ...user } = result;
   return user;
 };
+
 
 export const ProfileService = {
   getSingleProfile,

@@ -187,23 +187,33 @@ const getSingleEvent = async (id: string) => {
   });
   return result;
 };
-const getMyEvents = async (payload: Request & { user?: any }) => {
-  const email = payload.user.email;
 
-  const isUserExits = await prisma.user.findUniqueOrThrow({
-    where: {
-      email: email,
-    },
-  });
+
+
+const getMyEvents = async (payload: any) => {
 
   const result = await prisma.event.findMany({
-    where: { organizerId: isUserExits.id, isDeleted: false },
-    include: {
-      organizer: true,
-    },
+    where: { organizerId: payload.id, isDeleted: false },
+    include:{
+      participants: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profileImage: true,
+            },
+          },
+        },
+      }
+    }
   });
   return result;
 };
+
+
+
 const getSingleEventBySlug = async (slug: string) => {
   const result = await prisma.event.findUniqueOrThrow({
     where: { slug, isDeleted: false },
@@ -219,11 +229,36 @@ const deleteEvent = async (id: string) => {
     where: { id },
   });
 
-  const result = await prisma.event.update({
+  const transaction=await prisma.$transaction(async (tx) => {
+
+const participants = await tx.participant.findMany({
+  where: { eventId: id },
+});
+const invites= await tx.invite.findMany({
+  where: { eventId: id },
+});
+if (participants.length > 0) {
+  for (const participant of participants) {
+    await tx.participant.deleteMany({
+      where: { id: participant.id },
+    });
+  }
+}
+if (invites.length > 0) {
+  for (const invite of invites) {
+    await tx.invite.deleteMany({
+      where: { id: invite.id },
+    });
+  }
+}
+  const result = await tx.event.update({
     where: { id },
     data: { isDeleted: true },
   });
   return result;
+
+  })
+return transaction;
 };
 export const eventService = {
   createEvent,

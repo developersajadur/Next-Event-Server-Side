@@ -14,13 +14,13 @@ export interface IProfile {
   isBlocked: boolean;
 }
 
-
-
+// update profile
 export interface UpdateProfilePayload {
-  name: string;
-  email: string;
-  profileImage: string;
-  phoneNumber: string; 
-  address: string;
-  occupation: string;
+  userId: string;
+  name?: string;
+  email?: string;
+  profileImage?: string;
+  phoneNumber?: string; 
+  address?: string;
+  occupation?: string;
 }
