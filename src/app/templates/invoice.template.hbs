@@ -1,0 +1,81 @@
+git <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Event Registration Invoice</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+    <h2 style="color: #1d4ed8; text-align: center;">Next Event</h2>
+    <p style="text-align: center; color: #475569;">Secure Event Platform by Next Event Team</p>
+
+    <hr style="margin: 20px 0;" />
+
+    <h3 style="color: #0f172a;">Registration Invoice</h3>
+
+    <p><strong>Invoice ID:</strong> {{invoiceId}}</p>
+    <p><strong>Issued On:</strong> {{createdAt}}</p>
+
+    <hr />
+
+    <p><strong>Participant:</strong> {{user.name}}</p>
+    <p><strong>Email:</strong> {{user.email}}</p>
+    <p><strong>Event:</strong> {{event.title}}</p>
+    <p><strong>Access Type:</strong> {{eventType}}</p>
+    <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
+    <p><strong>Status:</strong> {{paymentStatus}}</p>
+
+    <hr />
+
+    <h4 style="color: #1e293b;">Summary</h4>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 8px;">Event Fee</td>
+        <td style="padding: 8px; text-align: right;">{{totalAmount}} BDT</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px;">Discount</td>
+        <td style="padding: 8px; text-align: right;">- {{discount}} BDT</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px;">Delivery Charge</td>
+        <td style="padding: 8px; text-align: right;">{{deliveryCharge}} BDT</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; font-weight: bold;">Total Paid</td>
+        <td style="padding: 8px; text-align: right; font-weight: bold;">{{finalAmount}} BDT</td>
+      </tr>
+    </table>
+
+    <hr />
+
+    <p style="color: #334155;">Thank you for registering with <strong>Next Event</strong>!</p>
+    <p style="color: #475569;">Please keep this invoice for your records. We look forward to your participation.</p>
+
+    <p style="margin-top: 30px; text-align: center; font-size: 12px; color: #94a3b8;">
+      © {{year}} Next Event. All rights reserved.
+    </p>
+  </div>
+</body>
+</html>
+
+
+
+
+{{!-- 
+{
+  invoiceId: order.id,
+  createdAt: formatDate(order.createdAt), // e.g. 'April 30, 2025'
+  user: { name: order.user?.name, email: order.user?.email },
+  event: { title: order.event?.title },
+  eventType: order.eventType,
+  paymentMethod: order.paymentMethod,
+  paymentStatus: order.paymentStatus,
+  totalAmount: order.totalAmount.toFixed(2),
+  discount: order.discount.toFixed(2),
+  deliveryCharge: order.deliveryCharge.toFixed(2),
+  finalAmount: order.finalAmount.toFixed(2),
+  year: new Date().getFullYear()
+}
+
+ --}}
