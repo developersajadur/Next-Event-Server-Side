@@ -16,11 +16,12 @@ exports.ReviewController = void 0;
 const catchAsync_1 = __importDefault(require("../../helpers/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../helpers/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
-const review_service_1 = require("../review/review.service");
+const review_service_1 = require("./review.service");
 const createReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const payload = req.body;
-    const user = req.user;
-    const result = yield review_service_1.ReviewServices.createReview(payload, user.id);
+    const userId = req.user.id;
+    console.log("User from token:", req.user);
+    const result = yield review_service_1.ReviewServices.createReview(Object.assign(Object.assign({}, payload), { userId }));
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
@@ -82,10 +83,33 @@ const deleteReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result,
     });
 }));
+const myAllReviews = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const reviewerId = req.params.id;
+    // console.log(reviewerId)
+    const result = yield review_service_1.ReviewServices.myAllReviews(reviewerId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "my all review fetch succesfully",
+        data: result,
+    });
+}));
+const getReviewsByEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { eventId } = req.params;
+    const result = yield review_service_1.ReviewServices.getReviewsByEvent(eventId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "get Reviews By Event successfully..!",
+        data: result,
+    });
+}));
 exports.ReviewController = {
     createReview,
     getAllReview,
     deleteReview,
     updateReview,
-    getMyReviews
+    getMyReviews,
+    myAllReviews,
+    getReviewsByEvent
 };

@@ -20,7 +20,6 @@ const sendResponse_1 = __importDefault(require("../../helpers/sendResponse"));
 const event_constants_1 = require("./event.constants");
 const event_service_1 = require("./event.service");
 const createEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(req.body);
     const result = yield event_service_1.eventService.createEvent(req);
     (0, sendResponse_1.default)(res, {
         success: true,
@@ -47,15 +46,6 @@ const getAllEvents = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         statusCode: http_status_1.default.OK,
         message: 'Events fetched successfully',
         data: { data: result.data, meta: result.meta }
-    });
-}));
-const getSingleEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield event_service_1.eventService.getSingleEvent(req.params.id);
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: 'Event fetched successfully',
-        data: result
     });
 }));
 const getSingleEventBySlug = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -86,5 +76,5 @@ const deleteEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     });
 }));
 exports.EventController = {
-    createEvent, getAllEvents, getSingleEvent, updateEvent, deleteEvent, getMyEvents, getSingleEventBySlug
+    createEvent, getAllEvents, updateEvent, deleteEvent, getMyEvents, getSingleEventBySlug
 };

@@ -21,7 +21,6 @@ const emailHelper_1 = require("../../helpers/emailHelper");
 const config_1 = __importDefault(require("../../config"));
 const sentInvite = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { inviteReceiverId, eventId, inviteSenderId } = payload;
-    // Validate invite receiver
     const inviteReceiver = yield prisma_1.default.user.findUnique({
         where: { id: inviteReceiverId },
     });
@@ -30,21 +29,18 @@ const sentInvite = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         inviteReceiver.isBlocked) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Invite receiver does not exist or is inactive");
     }
-    // Validate event
     const event = yield prisma_1.default.event.findUnique({
         where: { id: eventId },
     });
     if (!event || event.isDeleted) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Event does not exist");
     }
-    // Validate sender
     const sender = yield prisma_1.default.user.findUnique({
         where: { id: inviteSenderId },
     });
     if (!sender || sender.isDeleted || sender.isBlocked) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Inviter does not exist or is inactive");
     }
-    // Check for duplicate invite
     const existingInvite = yield prisma_1.default.invite.findFirst({
         where: {
             eventId,
@@ -55,20 +51,17 @@ const sentInvite = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (existingInvite) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "User has already been invited to this event");
     }
-    // Create the invite
     const invite = yield prisma_1.default.invite.create({
         data: payload
     });
-    // Prepare email content
     const html = yield emailHelper_1.EmailHelper.createEmailContent({
         name: inviteReceiver.name,
         senderName: sender.name,
         eventTitle: event.title,
         eventLink: `${config_1.default.client_site_url}/events/${event.id}`,
-    }, "invite" // Template file: invite.template.hbs
-    );
-    // Send email
+    }, "invite");
     yield emailHelper_1.EmailHelper.sendEmail(inviteReceiver.email, html, `You're Invited to "${event.title}"`);
+    console.log("🚀 ~ invite:", invite);
     return invite;
 });
 const getMyAllSendInvites = (userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -131,6 +124,15 @@ const getMyAllReceivedInvites = (userId) => __awaiter(void 0, void 0, void 0, fu
                     profileImage: true
                 }
             },
+            invitee: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phoneNumber: true,
+                    profileImage: true
+                }
+            }
         },
     });
     return invites;
@@ -175,14 +177,12 @@ const acceptInvite = (inviteId) => __awaiter(void 0, void 0, void 0, function* (
         if (!invite) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Invite not found");
         }
-        // console.log(invite.inviteReceiverId, invite.eventId);
         const dataToCreateParticipant = {
             eventId: invite.eventId,
             userId: invite.inviteReceiverId,
             hasPaid: true,
         };
         const participant = yield participant_service_1.participantService.createParticipant(dataToCreateParticipant);
-        // console.log(participant);
         if (participant) {
             yield tx.invite.update({
                 where: { id: inviteId },
@@ -235,8 +235,15 @@ const getAllInvite = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+const deleteInvite = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.invite.update({
+        where: { id: id },
+        data: { isDeleted: true },
+    });
+    return result;
+});
 exports.InviteService = {
-    sentInvite,
+    sentInvite, deleteInvite,
     getMyAllSendInvites,
     getMyAllReceivedInvites,
     acceptInvite,
