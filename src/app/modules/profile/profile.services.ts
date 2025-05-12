@@ -27,7 +27,10 @@ const updateUserProfile = async (
     if (!userExist) {
       throw new AppError(404, 'User not found');
     }
-
+    
+    // if (!userExist.password) {
+    //   throw new AppError(403, 'Social login users are not allowed to update their profile');
+    // }
     const { userId: _, ...updateData } = payload;
 
     if (file) {
@@ -35,12 +38,17 @@ const updateUserProfile = async (
       updateData.profileImage = uploadResult.secure_url;
     }
 
-    const result = await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: userId },
       data: updateData,
       select: selectFields,
     });
+    const {password, ...rest} = user
 
+    const result = {
+      ...rest,
+      isSocialLogin: !password,
+    };
     return result;
   } catch (error) {
     throw new AppError(403, 'failed ');

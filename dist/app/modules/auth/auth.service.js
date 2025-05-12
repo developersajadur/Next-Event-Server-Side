@@ -51,6 +51,7 @@ const config_1 = __importDefault(require("../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const jwtHelpers_1 = require("../../helpers/jwtHelpers");
 const prisma_1 = __importDefault(require("../../shared/prisma"));
+const auth_constant_1 = require("./auth.constant");
 const emailSender_1 = __importDefault(require("./emailSender"));
 // login user
 const loginUser = (data) => __awaiter(void 0, void 0, void 0, function* () {
@@ -152,6 +153,7 @@ const getProfileInfo = (token) => __awaiter(void 0, void 0, void 0, function* ()
         where: {
             id: userId,
         },
+        select: auth_constant_1.safeUserData,
     });
     if (!user) {
         throw new AppError_1.default(404, 'User not found');
