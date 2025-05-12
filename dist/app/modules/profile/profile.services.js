@@ -44,16 +44,21 @@ const updateUserProfile = (userId, payload, file) => __awaiter(void 0, void 0, v
         if (!userExist) {
             throw new AppError_1.default(404, 'User not found');
         }
+        // if (!userExist.password) {
+        //   throw new AppError(403, 'Social login users are not allowed to update their profile');
+        // }
         const { userId: _ } = payload, updateData = __rest(payload, ["userId"]);
         if (file) {
             const uploadResult = yield fileUploader_1.fileUploads.uploadToCloudinary(file);
             updateData.profileImage = uploadResult.secure_url;
         }
-        const result = yield prisma_1.default.user.update({
+        const user = yield prisma_1.default.user.update({
             where: { id: userId },
             data: updateData,
             select: profile_constraint_1.selectFields,
         });
+        const { password } = user, rest = __rest(user, ["password"]);
+        const result = Object.assign(Object.assign({}, rest), { isSocialLogin: !password });
         return result;
     }
     catch (error) {
