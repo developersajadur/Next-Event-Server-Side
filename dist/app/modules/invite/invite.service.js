@@ -180,6 +180,7 @@ const acceptInvite = (inviteId) => __awaiter(void 0, void 0, void 0, function* (
         const dataToCreateParticipant = {
             eventId: invite.eventId,
             userId: invite.inviteReceiverId,
+            joinedAt: new Date(),
             hasPaid: true,
         };
         const participant = yield participant_service_1.participantService.createParticipant(dataToCreateParticipant);

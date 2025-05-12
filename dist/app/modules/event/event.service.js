@@ -197,7 +197,22 @@ const getSingleEventBySlug = (slug) => __awaiter(void 0, void 0, void 0, functio
     const result = yield prisma_1.default.event.findUniqueOrThrow({
         where: { slug, isDeleted: false },
         include: {
-            organizer: true,
+            organizer: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    profileImage: true,
+                    occupation: true,
+                    address: true,
+                    phoneNumber: true,
+                },
+            },
+            participants: {
+                select: {
+                    userId: true,
+                },
+            },
         },
     });
     return result;

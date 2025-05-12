@@ -20,9 +20,15 @@ const http_status_1 = __importDefault(require("http-status"));
 const participant_constants_1 = require("./participant.constants");
 const RefineQuery_1 = __importDefault(require("../../helpers/RefineQuery"));
 const createParticipant = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const payload = req.body;
-    const user = req.user;
-    const result = yield participant_service_1.participantService.createParticipant(Object.assign(Object.assign({}, payload), { userId: user.id }));
+    // console.log(req);
+    const payload = yield req.body;
+    const user = yield req.user;
+    const dataToSend = {
+        eventId: payload.eventId,
+        userId: user.id,
+        joinedAt: new Date()
+    };
+    const result = yield participant_service_1.participantService.createParticipant(dataToSend);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
@@ -73,5 +79,5 @@ exports.participantController = {
     createParticipant,
     getAllParticipants,
     getAllParticipantsByEventId,
-    updateParticipantStatus
+    updateParticipantStatus,
 };

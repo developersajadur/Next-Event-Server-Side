@@ -42,7 +42,7 @@ const createParticipant = (payload) => __awaiter(void 0, void 0, void 0, functio
         const isExistPayment = yield prisma_1.default.payment.findFirst({
             where: {
                 userId: payload.userId,
-                eventId: payload.eventId
+                eventId: payload.eventId,
             },
         });
         // console.log(isExistPayment);
@@ -102,16 +102,16 @@ const getAllParticipants = (query, options) => __awaiter(void 0, void 0, void 0,
                     fee: true,
                     isPaid: true,
                     type: true,
-                    venue: true
-                }
+                    venue: true,
+                },
             },
             user: {
                 select: {
                     id: true,
                     email: true,
                     phoneNumber: true,
-                    profileImage: true
-                }
+                    profileImage: true,
+                },
             },
         },
     });
@@ -137,8 +137,8 @@ const getAllParticipantsByEventId = (eventId) => __awaiter(void 0, void 0, void 
                     fee: true,
                     isPaid: true,
                     type: true,
-                    venue: true
-                }
+                    venue: true,
+                },
             },
             user: {
                 select: {
@@ -146,8 +146,8 @@ const getAllParticipantsByEventId = (eventId) => __awaiter(void 0, void 0, void 
                     name: true,
                     email: true,
                     phoneNumber: true,
-                    profileImage: true
-                }
+                    profileImage: true,
+                },
             },
         },
     });
