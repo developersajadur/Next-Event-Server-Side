@@ -1,9 +1,11 @@
+
 import * as bcrypt from 'bcrypt';
 import { Secret } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import prisma from '../../shared/prisma';
+import { safeUserData } from './auth.constant';
 import {
   IAuthenticatedUser,
   ILoginUser,
@@ -156,6 +158,7 @@ const getProfileInfo = async (token: string) => {
     where: {
       id: userId,
     },
+    select: safeUserData,
   });
   if (!user) {
     throw new AppError(404, 'User not found');
