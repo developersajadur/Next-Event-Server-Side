@@ -9,10 +9,15 @@ const router = Router();
 
 router.get('/', EventController.getAllEvents);
 
+router.get(
+  '/:id',
+  // Auth(Role.ADMIN,Role.USER),
+  EventController.getSingleEvent,
+);
 
 router.get(
   '/slug/:slug',
-  Auth(Role.ADMIN,Role.USER),
+  // Auth(Role.ADMIN,Role.USER),
   EventController.getSingleEventBySlug,
 );
 
@@ -22,7 +27,7 @@ router.get(
   EventController.getMyEvents,
 );
 
-router.patch('/:id', Auth(Role.ADMIN), EventController.deleteEvent);
+router.patch('/:id', Auth(Role.ADMIN, Role.USER), EventController.deleteEvent);
 
 router.post(
   '/',

@@ -9,13 +9,15 @@ import RefineQuery from '../../helpers/RefineQuery';
 
 const createParticipant = catchAsync(
   async (req: Request & { user?: any }, res) => {
-    const payload = req.body;
-    const user = req.user;
-
-    const result = await participantService.createParticipant({
-      ...payload,
+    // console.log(req);
+    const payload = await req.body;
+    const user = await req.user;
+    const dataToSend = {
+      eventId: payload.eventId,
       userId: user.id,
-    });
+      joinedAt: new Date()
+    };
+    const result = await participantService.createParticipant(dataToSend);
 
     sendResponse(res, {
       statusCode: status.CREATED,
@@ -83,5 +85,5 @@ export const participantController = {
   createParticipant,
   getAllParticipants,
   getAllParticipantsByEventId,
-  updateParticipantStatus
+  updateParticipantStatus,
 };

@@ -4,7 +4,6 @@ import { Prisma } from '@prisma/client';
 import { fileUploads } from '../../helpers/fileUploader';
 import prisma from '../../shared/prisma';
 import { eventSearchableFields } from './event.constants';
-import { Request } from 'express';
 import calculatePagination from '../../helpers/CalculatePagination';
 import slugify from 'slugify';
 
@@ -218,47 +217,38 @@ const getSingleEventBySlug = async (slug: string) => {
   const result = await prisma.event.findUniqueOrThrow({
     where: { slug, isDeleted: false },
     include: {
-      organizer: true,
+      organizer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profileImage: true,
+          occupation: true,
+          address: true,
+         phoneNumber: true,
+        },
+      },
+      participants: {
+        select: {
+        userId: true,
+        },
+      },
     },
   });
   return result;
 };
 
 const deleteEvent = async (id: string) => {
+  // console.log(id);
   await prisma.event.findUniqueOrThrow({
     where: { id },
   });
 
-  const transaction=await prisma.$transaction(async (tx) => {
-
-const participants = await tx.participant.findMany({
-  where: { eventId: id },
-});
-const invites= await tx.invite.findMany({
-  where: { eventId: id },
-});
-if (participants.length > 0) {
-  for (const participant of participants) {
-    await tx.participant.deleteMany({
-      where: { id: participant.id },
-    });
-  }
-}
-if (invites.length > 0) {
-  for (const invite of invites) {
-    await tx.invite.deleteMany({
-      where: { id: invite.id },
-    });
-  }
-}
-  const result = await tx.event.update({
+  const result = await prisma.event.update({
     where: { id },
     data: { isDeleted: true },
   });
   return result;
-
-  })
-return transaction;
 };
 export const eventService = {
   createEvent,

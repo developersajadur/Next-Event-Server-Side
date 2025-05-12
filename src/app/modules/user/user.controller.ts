@@ -64,12 +64,9 @@ const deleteUserFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-
-
 export const userController = {
   createUserIntoDB,
   getAllUsersFromDB,
   getSingleUserFromDB,
   deleteUserFromDB,
- };
+};

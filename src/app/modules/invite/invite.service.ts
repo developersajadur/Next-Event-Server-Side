@@ -12,7 +12,7 @@ const sentInvite = async (payload: {
 }) => {
   const { inviteReceiverId, eventId, inviteSenderId } = payload;
 
-  
+  // Validate invite receiver
   const inviteReceiver = await prisma.user.findUnique({
     where: { id: inviteReceiverId },
   });
@@ -28,7 +28,7 @@ const sentInvite = async (payload: {
     );
   }
 
-
+  // Validate event
   const event = await prisma.event.findUnique({
     where: { id: eventId },
   });
@@ -37,7 +37,7 @@ const sentInvite = async (payload: {
     throw new AppError(status.NOT_FOUND, "Event does not exist");
   }
 
-
+  // Validate sender
   const sender = await prisma.user.findUnique({
     where: { id: inviteSenderId },
   });
@@ -49,6 +49,7 @@ const sentInvite = async (payload: {
     );
   }
 
+  // Check for duplicate invite
   const existingInvite = await prisma.invite.findFirst({
     where: {
       eventId,
@@ -64,13 +65,12 @@ const sentInvite = async (payload: {
     );
   }
 
-
+  // Create the invite
   const invite = await prisma.invite.create({
     data: payload
   });
 
-
-
+  // Prepare email content
   const html = await EmailHelper.createEmailContent(
     {
       name: inviteReceiver.name,
@@ -78,22 +78,20 @@ const sentInvite = async (payload: {
       eventTitle: event.title,
       eventLink: `${config.client_site_url}/events/${event.id}`,
     },
-    "invite" 
+    "invite" // Template file: invite.template.hbs
   );
 
-
+  // Send email
   await EmailHelper.sendEmail(
     inviteReceiver.email,
     html,
     `You're Invited to "${event.title}"`
   );
 
-  console.log("🚀 ~ invite:", invite)
   return invite;
 };
 
 const getMyAllSendInvites = async (userId: string) => {
-    
     const invites = await prisma.invite.findMany({
         where: {
         inviteSenderId: userId,
@@ -155,15 +153,6 @@ const getMyAllReceivedInvites = async (userId: string) => {
               profileImage: true
             }
           },
-          invitee:{
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phoneNumber: true,
-              profileImage: true
-            }
-          }
           },
     });
     
@@ -171,72 +160,91 @@ const getMyAllReceivedInvites = async (userId: string) => {
 }
 
 const acceptInvite = async (inviteId: string) => {
-    const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(
+    async (tx) => {
+      await tx.$executeRaw`SET LOCAL statement_timeout = 20000`; 
+      await tx.$executeRaw`SET LOCAL idle_in_transaction_session_timeout = 20000`;
+      const invite = await tx.invite.findUnique({
+        where: { id: inviteId, isDeleted: false },
+        include: {
+          event: {
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              bannerImage: true,
+              fee: true,
+              isPaid: true,
+              type: true,
+              venue: true,
+            },
+          },
+          invitee: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+              profileImage: true,
+            },
+          },
+          inviter: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+              profileImage: true,
+            },
+          },
+        },
+      });
 
-        const invite = await tx.invite.findUnique({
-            where: { id: inviteId },
-            include: {
-              event: {
-                select: {
-                  id: true,
-                  slug: true,
-                  title: true,
-                  bannerImage: true,
-                  fee: true,
-                  isPaid: true,
-                  type: true,
-                  venue: true
-                }
-              },
-              invitee:{
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  phoneNumber: true,
-                  profileImage: true
-                }
-              },
-              inviter:{
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  phoneNumber: true,
-                  profileImage: true
-                }
-              },
-              },
-        });
-        if(!invite) {
-            throw new AppError(status.NOT_FOUND, "Invite not found");
-        }
-   
-        const dataToCreateParticipant = {
-            eventId: invite.eventId,
-            userId: invite.inviteReceiverId,
-            hasPaid: true,
-          };
+      if (!invite) {
+        throw new AppError(status.NOT_FOUND, 'Invite not found');
+      }
 
+      const dataToCreateParticipant = {
+        eventId: invite.eventId,
+        userId: invite.inviteReceiverId,
+        joinedAt: new Date(),
+        hasPaid: true,
+      };
 
-      const participant =  await participantService.createParticipant(dataToCreateParticipant);
-     
-      
-     if(participant){
+      const participant = await participantService.createParticipant(
+        dataToCreateParticipant
+      );
+
+      if (participant) {
         await tx.invite.update({
-            where: { id: inviteId },
-            data: { status: "ACCEPTED" },
-          })
-          await tx.participant.update({
-            where: { id: participant.id },
-            data: { status: "APPROVED" },
-          })
-     }
+          where: { id: inviteId },
+          data: { status: 'ACCEPTED' },
+        });
 
-    });
+        await tx.participant.update({
+          where: { id: participant.id },
+          data: { status: 'APPROVED' },
+        });
+      }
+    },
+    {
+      timeout: 50000,
+    }
+  );
 
-    return result;
+  return result;
 };
+
+
+
+const RejectInvite = async (inviteId: string) => {
+    const result = await prisma.invite.update({
+        where: { id: inviteId, isDeleted: false },
+        data: { status: "DECLINED" },
+      });
+      return result;
+}
+
 
 const getAllInvite = async() => {
   const result = prisma.invite.findMany({
@@ -277,19 +285,13 @@ const getAllInvite = async() => {
   })
   return result
 }
-const deleteInvite = async (id: string) => {
-    const result = await prisma.invite.update({
-        where: { id: id },
-        data: { isDeleted: true },
-      })
-      return result;
-};
 
 
 export const InviteService = {
-  sentInvite,deleteInvite,
+  sentInvite,
   getMyAllSendInvites,
   getMyAllReceivedInvites,
   acceptInvite,
-  getAllInvite
+  getAllInvite,
+  RejectInvite
 };

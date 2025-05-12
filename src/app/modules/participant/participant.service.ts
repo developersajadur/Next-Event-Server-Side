@@ -21,7 +21,7 @@ const createParticipant = async (payload: any) => {
     const isExistPayment = await prisma.payment.findFirst({
       where: {
         userId: payload.userId,
-        eventId: payload.eventId
+        eventId: payload.eventId,
       },
     });
     // console.log(isExistPayment);
@@ -103,18 +103,18 @@ const getAllParticipants = async (
           fee: true,
           isPaid: true,
           type: true,
-          venue: true
-        }
+          venue: true,
+        },
       },
-      user:{
+      user: {
         select: {
           id: true,
           email: true,
           phoneNumber: true,
-          profileImage: true
-        }
+          profileImage: true,
+        },
       },
-      },
+    },
   });
 
   const total = await prisma.participant.count({ where });
@@ -141,19 +141,19 @@ const getAllParticipantsByEventId = async (eventId: string) => {
           fee: true,
           isPaid: true,
           type: true,
-          venue: true
-        }
+          venue: true,
+        },
       },
-      user:{
+      user: {
         select: {
           id: true,
           name: true,
           email: true,
           phoneNumber: true,
-          profileImage: true
-        }
+          profileImage: true,
+        },
       },
-      },
+    },
   });
 
   return result;
