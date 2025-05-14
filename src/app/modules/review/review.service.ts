@@ -76,11 +76,24 @@ const getAllReview = async(filter?: { rating?: number; user?: string }) => {
 
 // Get current user's reviews
 const getMyReviews = async (id: string) => {
+  // console.log(id);
     
-  const result = await prisma.review.findUnique({
-    where: { id},
+  const result = await prisma.review.findMany({
+    where: {
+      reviewerId: id,
+      isDeleted: false,
+    },
     include: { 
-      reviewer: true 
+      event: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          description: true,
+          bannerImage: true,
+          startDate: true,
+        },
+      }
     },
   });
   if (!result) {
