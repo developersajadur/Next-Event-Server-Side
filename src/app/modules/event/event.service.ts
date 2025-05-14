@@ -239,7 +239,7 @@ const getSingleEventBySlug = async (slug: string) => {
 };
 
 const deleteEvent = async (id: string) => {
-  // console.log(id);
+  
   await prisma.event.findUniqueOrThrow({
     where: { id },
   });

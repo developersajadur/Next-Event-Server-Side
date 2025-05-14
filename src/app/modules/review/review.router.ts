@@ -13,6 +13,7 @@ router.post(
   ReviewController.createReview,
 );
 router.get('/', Auth('ADMIN'), ReviewController.getAllReview);
+router.get('/:id', Auth('ADMIN'), ReviewController.getSingleReview);
 router.patch('/:id', Auth('USER'), ReviewController.updateReview);
 router.delete('/:id', Auth('ADMIN', 'USER'), ReviewController.deleteReview);
 

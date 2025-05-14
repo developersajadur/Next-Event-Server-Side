@@ -151,6 +151,29 @@ const deleteReview = async (id: string) => {
   
     return result;
   };
+const getSingleReview = async (id: string) => {
+    const review = await prisma.review.findUnique({ where: { id } ,
+     include: {
+        reviewer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profileImage: true,
+          }
+        },
+      },});
+  
+    if (!review || review.isDeleted) {      
+      throw new AppError(httpStatus.NOT_FOUND ,"Review not found or already deleted")     
+    }
+  
+ 
+  
+   
+  
+    return review;
+  };
 
   const getReviewsByEventId = async (eventId: string) => {
     const reviews = await prisma.review.findMany({
@@ -179,5 +202,6 @@ export const ReviewServices = {
     deleteReview,
     updateReview,
     getMyReviews,
-    getReviewsByEventId
+    getReviewsByEventId,
+    getSingleReview
 }

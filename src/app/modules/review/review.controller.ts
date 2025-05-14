@@ -89,6 +89,17 @@ const createReview = catchAsync(async (req: Request & { user?: any }, res) => {
       data: result,
     });
   });
+  const getSingleReview = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const result = await ReviewServices.getSingleReview(id);
+  
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Review Fetched successfully!",
+      data: result,
+    });
+  });
 
 
   const getReviewsByEventId = catchAsync(async (req, res) => {
@@ -109,5 +120,6 @@ export const ReviewController = {
     deleteReview,
     updateReview,
     getMyReviews,
-    getReviewsByEventId
+    getReviewsByEventId,
+    getSingleReview
 }
