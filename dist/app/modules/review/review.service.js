@@ -72,10 +72,23 @@ const getAllReview = (filter) => __awaiter(void 0, void 0, void 0, function* () 
 });
 // Get current user's reviews
 const getMyReviews = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.review.findUnique({
-        where: { id },
+    // console.log(id);
+    const result = yield prisma_1.default.review.findMany({
+        where: {
+            reviewerId: id,
+            isDeleted: false,
+        },
         include: {
-            reviewer: true
+            event: {
+                select: {
+                    id: true,
+                    slug: true,
+                    title: true,
+                    description: true,
+                    bannerImage: true,
+                    startDate: true,
+                },
+            }
         },
     });
     if (!result) {

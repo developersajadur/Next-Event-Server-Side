@@ -121,19 +121,19 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
             fee: true,
             isPaid: true,
             type: true,
-            venue: true
-          }
+            venue: true,
+          },
         },
-        user:{
+        user: {
           select: {
             id: true,
             name: true,
             email: true,
             phoneNumber: true,
-            profileImage: true
-          }
+            profileImage: true,
+          },
         },
-        },
+      },
     });
     if (!paymentRecord) {
       throw new AppError(status.NOT_FOUND, 'Payment record not found.');
@@ -159,7 +159,6 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
             gatewayResponse: (gatewayData as any) || null,
           },
         });
-        // console.log(updatedPayment);
 
         if (!updatedPayment) {
           throw new AppError(
@@ -177,7 +176,6 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
         }
 
         if (payment.status === 'Paid') {
-
           const dataToCreateParticipant = {
             eventId: payment.eventId,
             userId: payment.userId,
@@ -185,25 +183,22 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
           };
 
           await participantService.createParticipant(dataToCreateParticipant);
-         const invite = await prisma.invite.findFirst({
+          const invite = await prisma.invite.findFirst({
             where: { eventId: payment.eventId },
-          })
-      //  return   console.log(invite, "invite");
+          });
           if (invite) {
-         const updateInviteStatus =  await tx.invite.update({
+            const updateInviteStatus = await tx.invite.update({
               where: { id: invite.id },
               data: { status: 'ACCEPTED' },
             });
 
-            if(!updateInviteStatus) {
+            if (!updateInviteStatus) {
               throw new AppError(
                 status.NOT_FOUND,
                 'Invite record not found or not updated.',
               );
             }
 
-            // return console.log(updateInviteStatus, "updateInviteStatus");
-  
             const existingParticipant = await tx.participant.findUnique({
               where: {
                 userId_eventId: {
@@ -212,15 +207,14 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
                 },
               },
             });
-            
+
             if (!existingParticipant) {
-              // Optionally, create it or skip update
               throw new AppError(
                 status.NOT_FOUND,
                 'Participant not found for invited user.',
               );
             }
-            
+
             const updateParticipantStatus = await tx.participant.update({
               where: {
                 userId_eventId: {
@@ -230,7 +224,7 @@ const validatePayment = async (tran_id: string): Promise<boolean> => {
               },
               data: { status: 'APPROVED' },
             });
-            if(!updateParticipantStatus) {
+            if (!updateParticipantStatus) {
               throw new AppError(
                 status.NOT_FOUND,
                 'Participant record not found or not updated.',
