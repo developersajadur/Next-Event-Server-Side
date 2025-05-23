@@ -134,6 +134,23 @@ const deleteReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+const getSingleReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const review = yield prisma_1.default.review.findUnique({ where: { id },
+        include: {
+            reviewer: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    profileImage: true,
+                }
+            },
+        }, });
+    if (!review || review.isDeleted) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Review not found or already deleted");
+    }
+    return review;
+});
 const getReviewsByEventId = (eventId) => __awaiter(void 0, void 0, void 0, function* () {
     const reviews = yield prisma_1.default.review.findMany({
         where: {
@@ -159,5 +176,6 @@ exports.ReviewServices = {
     deleteReview,
     updateReview,
     getMyReviews,
-    getReviewsByEventId
+    getReviewsByEventId,
+    getSingleReview
 };

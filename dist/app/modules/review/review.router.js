@@ -11,6 +11,7 @@ const router = express_1.default.Router();
 router.get('/my-reviews', (0, Auth_1.default)('USER'), review_controller_1.ReviewController.getMyReviews);
 router.post('/', (0, Auth_1.default)('USER'), review_controller_1.ReviewController.createReview);
 router.get('/', (0, Auth_1.default)('ADMIN'), review_controller_1.ReviewController.getAllReview);
+router.get('/:id', (0, Auth_1.default)('ADMIN'), review_controller_1.ReviewController.getSingleReview);
 router.patch('/:id', (0, Auth_1.default)('USER'), review_controller_1.ReviewController.updateReview);
 router.delete('/:id', (0, Auth_1.default)('ADMIN', 'USER'), review_controller_1.ReviewController.deleteReview);
 router.get('/event/reviews/:eventId', review_controller_1.ReviewController.getReviewsByEventId);

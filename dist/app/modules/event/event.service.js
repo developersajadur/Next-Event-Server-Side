@@ -218,7 +218,6 @@ const getSingleEventBySlug = (slug) => __awaiter(void 0, void 0, void 0, functio
     return result;
 });
 const deleteEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(id);
     yield prisma_1.default.event.findUniqueOrThrow({
         where: { id },
     });

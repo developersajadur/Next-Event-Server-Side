@@ -30,7 +30,6 @@ const config_1 = __importDefault(require("../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const jwtHelpers_1 = require("../../helpers/jwtHelpers");
 const prisma_1 = __importDefault(require("../../shared/prisma"));
-const user_interface_1 = require("../user/user.interface");
 // createUserIntoDB
 const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
@@ -88,9 +87,7 @@ const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, functio
 });
 // get User
 const getAllUsersFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.user.findMany({
-        select: user_interface_1.publicUserSelectFields,
-    });
+    const result = yield prisma_1.default.user.findMany();
     return result;
 });
 // get single user by id
@@ -115,9 +112,34 @@ const deleteUserFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () 
     if (userData.isBlocked) {
         throw new AppError_1.default(403, 'User is blocked');
     }
-    const result = yield prisma_1.default.user.delete({
+    const result = yield prisma_1.default.user.update({
         where: {
             id,
+        },
+        data: {
+            isDeleted: true,
+        },
+    });
+    return result;
+});
+const blockUserFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const userData = yield prisma_1.default.user.findFirstOrThrow({
+        where: {
+            id,
+        },
+    });
+    if (userData.isBlocked) {
+        throw new AppError_1.default(403, 'User is blocked');
+    }
+    if (userData.isDeleted) {
+        throw new AppError_1.default(403, 'User is Deleted');
+    }
+    const result = yield prisma_1.default.user.update({
+        where: {
+            id,
+        },
+        data: {
+            isBlocked: true,
         },
     });
     return result;
@@ -126,5 +148,5 @@ exports.userService = {
     createUserIntoDB,
     getSingleUserFromDB,
     getAllUsersFromDB,
-    deleteUserFromDB,
+    deleteUserFromDB, blockUserFromDB
 };
