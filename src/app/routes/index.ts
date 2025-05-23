@@ -8,6 +8,7 @@ import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.route';
 import { userRouter } from '../modules/user/user.routes';
 import { ReviewRouter } from '../modules/review/review.router';
 import { profileRoutes } from '../modules/profile/profile.routes';
+import { metaRoute } from '../modules/meta/meta.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -46,6 +47,10 @@ const moduleRoutes = [
   {
     path: '/invites',
     route: inviteRoute,
+  },
+  {
+    path: '/meta',
+    route: metaRoute,
   },
 ];
 
