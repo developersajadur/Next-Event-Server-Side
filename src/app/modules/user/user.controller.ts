@@ -59,7 +59,18 @@ const deleteUserFromDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
-    message: 'user deleted successfully',
+    message: 'User deleted successfully',
+    data: result,
+  });
+});
+const blockUserFromDb = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const result = await userService.blockUserFromDB(id);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'User blocked successfully',
     data: result,
   });
 });
@@ -68,5 +79,5 @@ export const userController = {
   createUserIntoDB,
   getAllUsersFromDB,
   getSingleUserFromDB,
-  deleteUserFromDB,
+  deleteUserFromDB,blockUserFromDb
 };

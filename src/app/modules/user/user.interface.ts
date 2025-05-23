@@ -10,18 +10,7 @@ export type TUserPayload = {
   profileImage: string;
   };
 
-  export const publicUserSelectFields = {
-    id: true,
-    name: true,
-    email: true,
-    phoneNumber: true,
-    profileImage: true,
-    role: true,
-    isDeleted: true,
-    isBlocked: true,
-    createdAt: true,
-    updatedAt: true,
-  } ;
+
 
   export interface ITokenUser {
     id:string

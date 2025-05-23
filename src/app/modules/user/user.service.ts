@@ -4,7 +4,7 @@ import config from '../../config';
 import AppError from '../../errors/AppError';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import prisma from '../../shared/prisma';
-import { publicUserSelectFields, TUserPayload } from '../user/user.interface';
+import {  TUserPayload } from '../user/user.interface';
 // createUserIntoDB
 const createUserIntoDB = async (userData: TUserPayload) => {
   const { password, ...restData } = userData;
@@ -79,9 +79,7 @@ const createUserIntoDB = async (userData: TUserPayload) => {
 
 // get User
 const getAllUsersFromDB = async () => {
-  const result = await prisma.user.findMany({
-    select: publicUserSelectFields,
-  });
+  const result = await prisma.user.findMany( );
   return result;
 };
 // get single user by id
@@ -107,10 +105,38 @@ const deleteUserFromDB = async (id: string) => {
   if (userData.isBlocked) {
     throw new AppError(403, 'User is blocked');
   }
-  const result = await prisma.user.delete({
+  const result = await prisma.user.update({
     where: {
       id,
     },
+      data: {
+        isDeleted: true,
+      },
+    
+  });
+  return result;
+};
+const blockUserFromDB = async (id: string) => {
+  const userData = await prisma.user.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+  if (userData.isBlocked) {
+    throw new AppError(403, 'User is blocked');
+  }
+  if (userData.isDeleted) {
+    throw new AppError(403, 'User is Deleted');
+  }
+
+  const result = await prisma.user.update({
+    where: {
+      id,
+    },
+      data: {
+        isBlocked: true,
+      },
+    
   });
   return result;
 };
@@ -118,5 +144,5 @@ export const userService = {
   createUserIntoDB,
   getSingleUserFromDB,
   getAllUsersFromDB,
-  deleteUserFromDB,
+  deleteUserFromDB,blockUserFromDB
 };
