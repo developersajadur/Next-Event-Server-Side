@@ -31,6 +31,8 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const jwtHelpers_1 = require("../../helpers/jwtHelpers");
 const prisma_1 = __importDefault(require("../../shared/prisma"));
 const user_interface_1 = require("../user/user.interface");
+const CalculatePagination_1 = __importDefault(require("../../helpers/CalculatePagination"));
+const user_constants_1 = require("./user.constants");
 // createUserIntoDB
 const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
@@ -87,11 +89,69 @@ const createUserIntoDB = (userData) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 // get User
-const getAllUsersFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+const getAllUsersFromDB = (query, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { searchTerm, isBlocked, isDeleted, role } = query, otherFilters = __rest(query, ["searchTerm", "isBlocked", "isDeleted", "role"]);
+    const { page, limit, skip, sortBy, sortOrder } = (0, CalculatePagination_1.default)(options);
+    const searchConditions = [];
+    if (searchTerm) {
+        for (const field of user_constants_1.userSearchableFields) {
+            const [relation, nestedField] = field.split('.');
+            if (nestedField) {
+                searchConditions.push({
+                    [relation]: {
+                        [nestedField]: {
+                            contains: searchTerm,
+                            mode: 'insensitive',
+                        },
+                    },
+                });
+            }
+            else {
+                searchConditions.push({
+                    [field]: {
+                        contains: searchTerm,
+                        mode: 'insensitive',
+                    },
+                });
+            }
+        }
+    }
+    const filterConditions = [];
+    if (isBlocked) {
+        filterConditions.push({
+            isBlocked: isBlocked,
+        });
+    }
+    if (isDeleted) {
+        filterConditions.push({
+            isDeleted: isDeleted,
+        });
+    }
+    if (role) {
+        filterConditions.push({
+            role: role,
+        });
+    }
+    Object.entries(otherFilters).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+            filterConditions.push({ [key]: value });
+        }
+    });
+    const where = Object.assign(Object.assign({}, (searchConditions.length > 0 && { OR: searchConditions })), (filterConditions.length > 0 && { AND: filterConditions }));
     const result = yield prisma_1.default.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+            [sortBy]: sortOrder,
+        },
         select: user_interface_1.publicUserSelectFields,
     });
-    return result;
+    const total = yield prisma_1.default.user.count({ where });
+    return {
+        meta: { page, limit, total },
+        data: result,
+    };
 });
 // get single user by id
 const getSingleUserFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
