@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma } from '@prisma/client';
 import prisma from '../../shared/prisma';
 import httpStatus from 'http-status';
@@ -8,6 +9,15 @@ import AppError from '../../errors/AppError';
 import { IPaginationOptions } from '../../interfaces/pagination';
 import calculatePagination from '../../helpers/CalculatePagination';
 import { paymentSearchableFields } from './payment.constants';
+
+interface PaymentFilters {
+  searchTerm?: string;
+  paymentMethod?: 'COD' | 'Online';
+  paymentStatus?: 'Pending' | 'Paid' | 'Failed';
+  minAmount?: number;
+  maxAmount?: number;
+  [key: string]: any;
+}
 
 const createPayment = async (payload: TPayment) => {
   const {
@@ -124,13 +134,14 @@ const getMyPayments = async (userId: string) => {
   return payments;
 }
 
- const getAllPayments = async (
-  query: Record<string, any>,
+const getAllPayments = async (
+  query: PaymentFilters,
   options: IPaginationOptions,
 ) => {
-  const { searchTerm, ...filters } = query;
+  const { searchTerm, paymentMethod, paymentStatus, minAmount, maxAmount, ...otherFilters } = query;
   const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
 
+  // Search conditions (for partial text search on related fields)
   const searchConditions: Prisma.PaymentWhereInput[] = [];
 
   if (searchTerm) {
@@ -157,25 +168,59 @@ const getMyPayments = async (userId: string) => {
     }
   }
 
-  const filterConditions: Prisma.PaymentWhereInput[] = Object.entries(filters).map(
-    ([key, value]) => ({
-      [key]: typeof value === 'string' && (value === 'true' || value === 'false')
-        ? value === 'true'
-        : value,
-    }),
-  );
+  // Filter conditions array
+  const filterConditions: Prisma.PaymentWhereInput[] = [];
 
+  // Filter by payment method enum
+  if (paymentMethod) {
+    filterConditions.push({
+      method: paymentMethod,
+    });
+  }
+
+  // Filter by payment status enum
+  if (paymentStatus) {
+    filterConditions.push({
+      status: paymentStatus,
+    });
+  }
+
+  // Filter by min and max amount
+  if (minAmount !== undefined && !isNaN(minAmount)) {
+    filterConditions.push({
+      amount: {
+        gte: minAmount,
+      },
+    });
+  }
+  if (maxAmount !== undefined && !isNaN(maxAmount)) {
+    filterConditions.push({
+      amount: {
+        lte: maxAmount,
+      },
+    });
+  }
+
+  // Add other filters directly if needed (example: exact matches)
+  Object.entries(otherFilters).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') {
+      filterConditions.push({ [key]: value });
+    }
+  });
+
+  // Compose the final `where` clause for Prisma
   const where: Prisma.PaymentWhereInput = {
-    ...(searchConditions.length && { OR: searchConditions }),
-    ...(filterConditions.length && { AND: filterConditions }),
+    ...(searchConditions.length > 0 && { OR: searchConditions }),
+    ...(filterConditions.length > 0 && { AND: filterConditions }),
   };
 
+  // Fetch payments with pagination and relations
   const result = await prisma.payment.findMany({
     where,
     skip,
     take: limit,
     orderBy: {
-      [sortBy || 'createdAt']: sortOrder || 'desc',
+      [sortBy]: sortOrder,
     },
     include: {
       event: {
@@ -187,18 +232,19 @@ const getMyPayments = async (userId: string) => {
           fee: true,
           isPaid: true,
           type: true,
-          venue: true
-        }
+          venue: true,
+        },
       },
-      user:{
+      user: {
         select: {
           id: true,
           email: true,
           phoneNumber: true,
-          profileImage: true
-        }
+          profileImage: true,
+          name: true,
+        },
       },
-      },
+    },
   });
 
   const total = await prisma.payment.count({ where });
@@ -208,7 +254,6 @@ const getMyPayments = async (userId: string) => {
     data: result,
   };
 };
-
 
 
 export const paymentService = {

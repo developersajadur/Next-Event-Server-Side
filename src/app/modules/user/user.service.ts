@@ -5,6 +5,19 @@ import AppError from '../../errors/AppError';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import prisma from '../../shared/prisma';
 import { publicUserSelectFields, TUserPayload } from '../user/user.interface';
+import calculatePagination from '../../helpers/CalculatePagination';
+import { userSearchableFields } from './user.constants';
+import { IPaginationOptions } from '../../interfaces/pagination';
+
+
+interface UserFilters {
+  searchTerm?: string;
+  role?: "ADMIN" | "USER";
+  isBlocked?: boolean;
+  isDeleted?: boolean;
+  [key: string]: any;
+}
+
 // createUserIntoDB
 const createUserIntoDB = async (userData: TUserPayload) => {
   const { password, ...restData } = userData;
@@ -78,12 +91,86 @@ const createUserIntoDB = async (userData: TUserPayload) => {
 };
 
 // get User
-const getAllUsersFromDB = async () => {
+const getAllUsersFromDB = async (
+  query: UserFilters,
+  options: IPaginationOptions,
+) => {
+  const { searchTerm, isBlocked, isDeleted, role, ...otherFilters } = query;
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
+
+  const searchConditions: Prisma.UserWhereInput[] = [];
+  if (searchTerm) {
+    for (const field of userSearchableFields) {
+      const [relation, nestedField] = field.split('.');
+
+      if (nestedField) {
+        searchConditions.push({
+          [relation]: {
+            [nestedField]: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+        });
+      } else {
+        searchConditions.push({
+          [field]: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        });
+      }
+    }
+  }
+
+  const filterConditions: Prisma.UserWhereInput[] = [];
+
+  if (isBlocked) {
+    filterConditions.push({
+      isBlocked: isBlocked,
+    });
+  }
+
+  if (isDeleted) {
+    filterConditions.push({
+      isDeleted: isDeleted,
+    });
+  }
+  if (role) {
+    filterConditions.push({
+      role: role,
+    });
+  }
+
+  Object.entries(otherFilters).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') {
+      filterConditions.push({ [key]: value });
+    }
+  });
+
+  const where: Prisma.UserWhereInput = {
+    ...(searchConditions.length > 0 && { OR: searchConditions }),
+    ...(filterConditions.length > 0 && { AND: filterConditions }),
+  };
+
   const result = await prisma.user.findMany({
+    where,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
     select: publicUserSelectFields,
   });
-  return result;
+  const total = await prisma.user.count({ where });
+
+  return {
+    meta: { page, limit, total },
+    data: result,
+  };
 };
+
+
 // get single user by id
 const getSingleUserFromDB = async (id: string) => {
   const result = await prisma.user.findUniqueOrThrow({
