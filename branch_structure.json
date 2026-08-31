@@ -1,0 +1,33 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "dev.Sharmin",
+    "dev_sajadur",
+    "development",
+    "main",
+    "origin",
+    "sumon",
+    "testing",
+    "zayed"
+  ],
+  "parent": {
+    "dev.Sharmin": "main",
+    "dev_sajadur": "main",
+    "development": "main",
+    "main": null,
+    "origin": "main",
+    "sumon": "main",
+    "testing": "main",
+    "zayed": "main"
+  },
+  "order": [
+    "main",
+    "dev.Sharmin",
+    "dev_sajadur",
+    "development",
+    "origin",
+    "sumon",
+    "testing",
+    "zayed"
+  ]
+}
